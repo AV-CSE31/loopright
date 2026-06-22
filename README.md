@@ -196,13 +196,71 @@ This prevents benchmark loops from becoming open-ended "try more prompts" sessio
 
 ## Install
 
-Copy or install the skill folder:
+LoopRight is portable because the installable unit is just the skill folder:
 
 ```text
 skills/loopright/
 ```
 
 The skill is self-contained and does not require files outside that directory.
+
+### Install In Codex
+
+Codex discovers Agent Skills from `.agents/skills` in a repository, from parent `.agents/skills` folders up to the repository root, and from the user-level `$HOME/.agents/skills` directory.
+
+Project install:
+
+```bash
+mkdir -p .agents/skills
+cp -R skills/loopright .agents/skills/loopright
+```
+
+User install:
+
+```bash
+mkdir -p ~/.agents/skills
+cp -R skills/loopright ~/.agents/skills/loopright
+```
+
+Then start or restart Codex in the repository and invoke:
+
+```text
+$loopright Review this polling loop for termination, failure handling, and completion evidence.
+```
+
+If the skill does not appear, restart Codex. Codex can also invoke it implicitly when the task matches the skill description.
+
+### Install In Claude Code
+
+Claude Code discovers skills from `.claude/skills` in a project and from `~/.claude/skills` for personal skills.
+
+Project install:
+
+```bash
+mkdir -p .claude/skills
+cp -R skills/loopright .claude/skills/loopright
+```
+
+User install:
+
+```bash
+mkdir -p ~/.claude/skills
+cp -R skills/loopright ~/.claude/skills/loopright
+```
+
+Then start Claude Code with:
+
+```bash
+claude
+```
+
+Invoke the skill directly:
+
+```text
+/loopright Review this retry loop for budgets, idempotency, and evidence.
+```
+
+Claude Code watches existing skill directories for changes, but if you create a new top-level skills directory while Claude Code is already running, restart Claude Code.
 
 ## Use
 
