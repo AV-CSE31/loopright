@@ -1,0 +1,25 @@
+{
+  "name": "loopright",
+  "version": "0.1.0",
+  "cases": [
+    {
+      "id": "retry-loop-review",
+      "prompt": "Use $loopright to review a retry loop that catches Exception forever.",
+      "expected_behaviors": [
+        "rejects unbounded retry",
+        "requires transient failure allowlist",
+        "requires budget and evidence"
+      ]
+    },
+    {
+      "id": "ml-tuning-contract",
+      "prompt": "Use $loopright to design an Optuna tuning loop.",
+      "expected_behaviors": [
+        "defines objective metric",
+        "sets trial or time budget",
+        "requires baseline and final evidence"
+      ]
+    }
+  ]
+}
+

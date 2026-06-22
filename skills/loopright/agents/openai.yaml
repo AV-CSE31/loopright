@@ -1,0 +1,4 @@
+interface:
+  display_name: "LoopRight"
+  short_description: "Design loops that stop and prove results"
+  default_prompt: "Use $loopright to review this loop for termination, progress, failure handling, and completion evidence."
