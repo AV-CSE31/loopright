@@ -16,12 +16,9 @@ jobs:
           python-version: "3.x"
       - name: Validate example contracts
         run: |
-          python skills/loopright/scripts/validate-loop-contract.py examples/retry-loop/loop-contract.md
-          python skills/loopright/scripts/validate-loop-contract.py examples/async-processing/loop-contract.md
-          python skills/loopright/scripts/validate-loop-contract.py examples/ml-tuning/loop-contract.md
-          python skills/loopright/scripts/validate-loop-contract.py examples/agent-loop/loop-contract.md
-          python skills/loopright/scripts/validate-loop-contract.py examples/tasks/retry-upload-review.md
-          python skills/loopright/scripts/validate-loop-contract.py examples/tasks/job-polling-design.md
-          python skills/loopright/scripts/validate-loop-contract.py examples/tasks/async-batch-processor.md
-          python skills/loopright/scripts/validate-loop-contract.py examples/tasks/ml-tuning-loop.md
-          python skills/loopright/scripts/validate-loop-contract.py examples/tasks/agent-repair-loop.md
+          python skills/loopright/scripts/validate-all-contracts.py \
+            examples/retry-loop \
+            examples/async-processing \
+            examples/ml-tuning \
+            examples/agent-loop \
+            examples/tasks

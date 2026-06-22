@@ -9,6 +9,16 @@ Write loops right: bounded by design, measured by progress, completed with evide
 
 Use this skill whenever a task depends on repeated action, convergence, retries, polling, batching, async fan-out, optimization, training, iterative repair, or an agentic tool loop.
 
+## Operating Modes
+
+Choose the mode that matches the task:
+
+- **Design:** produce a loop contract, primitive choice, failure policy, and evidence plan before code.
+- **Implement:** make the smallest code change that satisfies the contract and project conventions.
+- **Review:** lead with severity-ranked findings, then give minimal fixes and missing tests.
+- **Repair:** stop repeated failures, change hypotheses deliberately, and prove completion with checks.
+- **Evaluate:** run or define representative tasks that show whether the loop behavior actually improved.
+
 ## Workflow
 
 1. Inspect the repository before designing the loop.
@@ -19,6 +29,24 @@ Use this skill whenever a task depends on repeated action, convergence, retries,
 6. Implement the loop with observable progress and explicit budgets.
 7. Add tests for termination, failure, edge cases, and completion evidence.
 8. Verify the loop with tests, measurements, logs, artifacts, or review output.
+
+## Required Output Shape
+
+For design or implementation tasks, include:
+
+1. Loop classification.
+2. Loop contract.
+3. Primitive selection and why it is sufficient.
+4. Termination, failure, and recovery policy.
+5. Implementation or patch.
+6. Tests and completion evidence.
+
+For review tasks, include:
+
+1. Findings first, ordered by severity.
+2. Missing contract fields.
+3. Smallest safe correction.
+4. Tests or evidence needed before completion.
 
 ## Loop Contract
 
@@ -70,6 +98,18 @@ Do not reimplement task groups, retry frameworks, workflow persistence, distribu
 - Claim completion only when evidence exists.
 - Avoid introducing LLM decisions when deterministic checks can decide.
 
+## Red Flags
+
+Escalate these immediately:
+
+- Unbounded `while True` without external lifetime and cancellation.
+- Retrying broad exceptions or every status code.
+- Polling without deadline, terminal failure states, or cancellation.
+- Creating unbounded async tasks from unbounded input.
+- Optimization or training loops without baseline, validation split, or budget.
+- Agent repair loops that repeat the same failed action without a changed hypothesis.
+- Final answers that claim success without command output, metrics, artifacts, or review evidence.
+
 ## References
 
 Load only the relevant reference:
@@ -80,8 +120,10 @@ Load only the relevant reference:
 - `references/ml-tuning.md`: training, evaluation, optimization, pruning, and experiment evidence.
 - `references/agent-loops.md`: coding-agent, tool-use, and iterative repair loops.
 - `references/review-rubric.md`: review checklist and severity guidance.
+- `templates/loop-contract-template.md`: reusable contract template for new examples or user-facing docs.
 
 ## Script
 
 Use `scripts/validate-loop-contract.py <file>` to check whether a Markdown or text contract mentions the required LoopRight contract fields. This script is a lightweight completeness check, not a proof of correctness.
 
+Use `scripts/validate-all-contracts.py <path> [<path> ...]` to recursively validate Markdown contracts in example folders.

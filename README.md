@@ -66,3 +66,19 @@ python skills/loopright/scripts/validate-loop-contract.py examples/retry-loop/lo
 ## Example Task Suite
 
 See [examples/tasks/README.md](examples/tasks/README.md) for tested example prompts and LoopRight-style outputs across retry, polling, async batch, ML tuning, and agent repair loops.
+
+## Research-Backed Skill Design
+
+LoopRight follows patterns from OpenAI Codex, Claude Code, GitHub Copilot, and public Agent Skills repositories:
+
+- A compact `SKILL.md` entry point.
+- Progressive disclosure through targeted references.
+- Deterministic scripts for repeatable validation.
+- Representative example tasks as an eval harness.
+- A self-contained installable skill folder.
+
+See [docs/research/top-skill-patterns.md](docs/research/top-skill-patterns.md).
+
+## Roadmap
+
+See [docs/roadmap.md](docs/roadmap.md) for the value flywheel: eval tasks, deterministic checks, host portability, example coverage, and community contribution paths.

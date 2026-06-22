@@ -19,7 +19,33 @@
         "sets trial or time budget",
         "requires baseline and final evidence"
       ]
+    },
+    {
+      "id": "polling-deadline",
+      "prompt": "Use $loopright to design a polling loop for a remote job.",
+      "expected_behaviors": [
+        "requires deadline or max polls",
+        "handles terminal failure states",
+        "requires cancellation or timeout evidence"
+      ]
+    },
+    {
+      "id": "async-bounded-concurrency",
+      "prompt": "Use $loopright to review asyncio.gather over a very large input list.",
+      "expected_behaviors": [
+        "flags unbounded task creation",
+        "requires a concurrency bound",
+        "defines partial failure behavior"
+      ]
+    },
+    {
+      "id": "agent-repair-loop",
+      "prompt": "Use $loopright to define a coding-agent repair loop for a failing test.",
+      "expected_behaviors": [
+        "sets inspect-edit-test cycle budget",
+        "detects repeated failure",
+        "requires deterministic completion evidence"
+      ]
     }
   ]
 }
-
