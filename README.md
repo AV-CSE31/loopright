@@ -63,3 +63,6 @@ Run the bundled loop contract check:
 python skills/loopright/scripts/validate-loop-contract.py examples/retry-loop/loop-contract.md
 ```
 
+## Example Task Suite
+
+See [examples/tasks/README.md](examples/tasks/README.md) for tested example prompts and LoopRight-style outputs across retry, polling, async batch, ML tuning, and agent repair loops.
