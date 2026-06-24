@@ -17,6 +17,16 @@ LoopRight is a portable Agent Skill for Codex, Claude Code, and other Agent Skil
 
 LoopRight is not a runtime, API wrapper, task queue, retry framework, workflow engine, MCP server, or chatbot. The v0.1 product is procedural engineering knowledge plus deterministic supporting checks.
 
+## Public Agent Resources
+
+LoopRight can be used even before installation:
+
+- [Machine-readable pattern catalog](catalog/loopright-patterns.json)
+- [Human-readable pattern catalog](catalog/catalog.md)
+- [Agent guide / llms.txt](catalog/llms.txt)
+
+The catalog includes patterns for retry loops, polling loops, async fan-out, distributed backfills, ML tuning, agent repair, benchmark loops, and durable workflows.
+
 ## Where LoopRight Is Useful
 
 LoopRight is most valuable when a loop is expensive, long-running, agent-driven, concurrent, or tied to external systems. These are the tasks where "just retry", "keep polling", or "iterate until it works" can quietly become runaway cost, duplicate side effects, bad metrics, or false completion.
@@ -204,6 +214,32 @@ skills/loopright/
 
 The skill is self-contained and does not require files outside that directory.
 
+### One-Command Install
+
+If you use the Agent Skills installer, install LoopRight from GitHub:
+
+```bash
+npx skills add AV-CSE31/loopright --skill loopright --agent codex -g -y
+```
+
+Claude Code:
+
+```bash
+npx skills add AV-CSE31/loopright --skill loopright --agent claude-code -g -y
+```
+
+Install for both:
+
+```bash
+npx skills add AV-CSE31/loopright \
+  --skill loopright \
+  --agent codex \
+  --agent claude-code \
+  -g -y
+```
+
+Leave off `-g` to install only in the current project. Leave off `-y` to review prompts interactively.
+
 ### Install In Codex
 
 Codex discovers Agent Skills from `.agents/skills` in a repository, from parent `.agents/skills` folders up to the repository root, and from the user-level `$HOME/.agents/skills` directory.
@@ -298,6 +334,24 @@ Run the bundled loop contract check:
 python skills/loopright/scripts/validate-loop-contract.py examples/retry-loop/loop-contract.md
 ```
 
+Validate the pattern catalog:
+
+```bash
+python skills/loopright/scripts/validate-pattern-catalog.py catalog/loopright-patterns.json
+```
+
+Regenerate public catalog files:
+
+```bash
+python skills/loopright/scripts/generate-pattern-docs.py catalog/loopright-patterns.json catalog
+```
+
+Discover loop risks in a repository:
+
+```bash
+python skills/loopright/scripts/discover-loop-risks.py .
+```
+
 ## More Example Tasks
 
 See [examples/tasks/README.md](examples/tasks/README.md) for additional tested prompts and LoopRight-style outputs across retry, polling, async batch, ML tuning, and agent repair loops.
@@ -313,6 +367,7 @@ LoopRight follows patterns from OpenAI Codex, Claude Code, GitHub Copilot, and p
 - A self-contained installable skill folder.
 
 See [docs/research/top-skill-patterns.md](docs/research/top-skill-patterns.md).
+See [docs/research/loop-library-leverage-deep-research.md](docs/research/loop-library-leverage-deep-research.md) for the Loop Library comparison and implementation notes.
 
 ## Roadmap
 

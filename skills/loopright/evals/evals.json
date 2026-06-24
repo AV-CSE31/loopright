@@ -46,6 +46,24 @@
         "detects repeated failure",
         "requires deterministic completion evidence"
       ]
+    },
+    {
+      "id": "loop-doctor",
+      "prompt": "Use $loopright to diagnose and minimally repair a loop prompt that says keep trying until it works.",
+      "expected_behaviors": [
+        "returns a Loop Doctor verdict",
+        "identifies missing budget and repeated-failure stop",
+        "provides minimal repair and required evidence"
+      ]
+    },
+    {
+      "id": "risk-discovery",
+      "prompt": "Use $loopright to scan a repository for dangerous or under-specified loops.",
+      "expected_behaviors": [
+        "uses risk discovery heuristics",
+        "flags unbounded loops and broad retry catches",
+        "labels findings as heuristics requiring review"
+      ]
     }
   ]
 }

@@ -22,3 +22,11 @@ jobs:
             examples/ml-tuning \
             examples/agent-loop \
             examples/tasks
+      - name: Validate pattern catalog
+        run: |
+          python skills/loopright/scripts/validate-pattern-catalog.py catalog/loopright-patterns.json
+          python skills/loopright/scripts/generate-pattern-docs.py catalog/loopright-patterns.json catalog
+          git diff --exit-code -- catalog/catalog.md catalog/llms.txt skills/loopright/references/pattern-catalog.md skills/loopright/references/pattern-catalog.json
+      - name: Discover loop risks
+        run: |
+          python skills/loopright/scripts/discover-loop-risks.py skills/loopright/scripts --fail-on-risk
