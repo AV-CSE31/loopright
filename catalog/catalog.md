@@ -2,7 +2,7 @@
 
 Engineering-grade loop patterns for designing, reviewing, repairing, and validating bounded, measurable, failure-aware loops.
 
-Updated: 2026-06-25
+Updated: 2026-08-26
 
 ## Patterns
 
@@ -400,6 +400,7 @@ Related patterns:
 - benchmark-loop
 - ml-tuning-loop
 - autonomous-decision-loop
+- agent-sweep-loop
 
 ### LR-007 - Benchmark Loop
 
@@ -467,6 +468,7 @@ Related patterns:
 - agent-repair-loop
 - polling-loop
 - autonomous-decision-loop
+- agent-sweep-loop
 
 ### LR-008 - Durable Workflow Loop
 
@@ -534,6 +536,73 @@ Related patterns:
 - polling-loop
 - distributed-backfill-loop
 - autonomous-decision-loop
+
+### LR-009 - Agent Sweep Loop
+
+Drive a tool-measured, codebase-wide metric to a target across repeated agent passes without gaming the metric or sweeping forever.
+
+Category: `agent`
+
+Use when:
+
+Use when an agent repeatedly raises a whole-codebase quality metric toward a target across many files in one sweep: test coverage, lint or error count, logging coverage, type coverage, documentation coverage, or accessibility.
+
+Prompt:
+
+```text
+Design or review this agent sweep loop with a tool-measured target metric, per-pass and total budgets, a diminishing-returns or coverage-complete stop, a no-gaming invariant, preservation of unrelated behavior, and an evidence artifact that records the metric measured by an independent tool before and after.
+```
+
+Contract:
+
+| Element | Answer |
+|---|---|
+| Objective | Raise a named, tool-measured metric to its target or a documented stopping point across the defined scope without degrading unrelated behavior. |
+| State | Baseline snapshot, current metric value, target, remaining worklist of gaps, items closed this pass, consecutive no-progress pass count, and remaining pass or cost budget. |
+| Action | Measure the metric, pick the highest-value remaining gap, make one scoped change, and re-measure with the same tool. |
+| Progress | The tool-measured metric moves toward the target or the remaining gap worklist shrinks. |
+| Invariant | The metric is measured by an independent tool rather than self-reported, unrelated and already-passing behavior stays unchanged, and the metric is never gamed by empty assertions, suppressed errors, or excluded files. |
+| Budget | Maximum passes, cost or token cap, wall-clock deadline, or a maximum number of consecutive no-progress passes. |
+| Stop Condition | Target metric is reached and re-verified, N consecutive passes add no measured progress, or budget is exhausted. |
+| Failure Condition | Metric regresses, the measuring tool breaks or is disabled, unrelated checks fail, or the same gap resists progress past its no-progress budget. |
+| Recovery | Revert the last change on regression, re-baseline from the tool, dead-letter intractable gaps for human review, and narrow scope when a pass stalls. |
+| Evidence | Before and after metric from the independent tool, scope covered, items skipped or dead-lettered with reasons, passes and budget used, and confirmation that unrelated checks still pass. |
+
+Red flags:
+
+- Iterate to 100 percent with no budget or diminishing-returns stop
+- Metric self-reported by the agent instead of measured by a tool
+- Coverage raised with empty or assertion-free tests
+- Errors cleared by suppression or exclusion instead of fixes
+- Unrelated files rewritten to move the metric
+- No before-and-after measurement from an independent tool
+
+Verification:
+
+- Improvement is real, tool-measured, and bounded.
+- Evidence shows the target metric measured by an independent tool before and after, the scope and skipped items, the passes and budget used, and proof that unrelated checks still pass.
+
+Tests:
+
+- Re-measures the metric with an independent tool each pass
+- Stops when the target is reached and re-verified
+- Stops after the configured consecutive no-progress passes
+- Reverts a change that regresses the metric or unrelated checks
+- Rejects metric gaming such as empty assertions or suppressed errors
+
+Failure modes:
+
+- False completion against an unmeasured target
+- Metric gaming
+- Infinite sweep and runaway cost
+- Unrelated regressions
+- Lost record of skipped or intractable items
+
+Related patterns:
+
+- agent-repair-loop
+- benchmark-loop
+- distributed-backfill-loop
 
 ### LR-010 - Autonomous Decision Loop
 
