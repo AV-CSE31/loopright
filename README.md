@@ -1,8 +1,39 @@
 # LoopRight
 
-Write loops right.
+Write loops right: bounded, observable, failure-aware, and backed by evidence.
 
 LoopRight is a portable Agent Skill for Codex, Claude Code, and other Agent Skills-compatible coding agents. It helps agents design, implement, review, and validate loops that are bounded, observable, failure-aware, and backed by completion evidence.
+
+It is built for the places where "just retry", "keep polling", "fan out everything", or "iterate until it works" can become runaway cost, duplicate side effects, overloaded services, bad metrics, or false completion.
+
+## Why It Matters
+
+LoopRight turns vague repeated work into an explicit engineering contract:
+
+- What must improve each iteration.
+- What must never change.
+- What budget limits attempts, time, cost, memory, or concurrency.
+- What failure conditions stop the loop.
+- What evidence proves completion.
+
+That makes it useful for code review, architecture design, incident repair, ML tuning, batch jobs, async workers, agent repair loops, and CI checks.
+
+## Feature Highlights
+
+| Feature | What it does | Where to look |
+|---|---|---|
+| Portable Agent Skill | Works as a self-contained `skills/loopright` folder for Codex, Claude Code, and compatible agents. | [skills/loopright/SKILL.md](skills/loopright/SKILL.md) |
+| Loop Doctor | Diagnoses loop prompts, code, architecture, or run logs with verdict, findings, minimal repair, and required evidence. | [loop-doctor.md](skills/loopright/references/loop-doctor.md) |
+| Loop Contract | Forces objective, state, action, progress, invariant, budget, stop, failure, recovery, and evidence before implementation. | [contract template](skills/loopright/templates/loop-contract-template.md) |
+| Pattern Catalog | Machine-readable and human-readable loop patterns for retry, polling, fan-out, backfill, ML tuning, agents, benchmarks, and durable workflows. | [catalog JSON](catalog/loopright-patterns.json), [catalog guide](catalog/catalog.md) |
+| CLI Front Door | One command surface for scan, doctor, validation, catalog, and template operations. | [loopright.py](skills/loopright/scripts/loopright.py) |
+| Risk Scanner | Detects risky loops such as unbounded `while True`, broad retry catches, polling without deadline, unbounded async fan-out, weak agent loops, and ML tuning without budget. | `python skills/loopright/scripts/loopright.py scan .` |
+| SARIF Output | Emits code-scanning output that can be uploaded to GitHub Advanced Security or other SARIF consumers. | [.github/workflows/loopright-code-scanning.yml](.github/workflows/loopright-code-scanning.yml) |
+| Pre-commit Hook | Lets teams block high-confidence loop risks before code lands. | [.pre-commit-hooks.yaml](.pre-commit-hooks.yaml) |
+| Runnable Proof Pack | Standard-library examples with tests for retry loops, polling loops, and bounded async worker pools. | [examples/runnable](examples/runnable) |
+| Scanner Benchmark | Deterministic benchmark over safe and unsafe fixtures with precision, recall, false positive, and false negative reporting. | [benchmarks](benchmarks) |
+| Field Guide Examples | Realistic examples with bad starting points, operational constraints, contracts, repair plans, and evidence. | [examples/field-guide](examples/field-guide) |
+| Agent-ready Guide | `llms.txt` and generated catalog docs let agents use LoopRight context even before installing the skill. | [llms.txt](catalog/llms.txt) |
 
 ## What It Covers
 
