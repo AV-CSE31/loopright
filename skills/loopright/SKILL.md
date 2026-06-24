@@ -159,9 +159,22 @@ Load only the relevant reference:
 - `references/loop-doctor.md`: diagnostic workflow for auditing and minimally repairing loops.
 - `references/pattern-catalog.md`: human-readable index of LoopRight patterns.
 - `references/pattern-catalog.json`: machine-readable pattern catalog.
+- `references/llms.txt`: compact agent-facing guide generated from the pattern catalog.
 - `templates/loop-contract-template.md`: reusable contract template for new examples or user-facing docs.
 
-## Script
+## Scripts
+
+Prefer `scripts/loopright.py` as the first deterministic tool entry point:
+
+- `python scripts/loopright.py scan <path> [--format json|md|sarif] [--fail-on-risk]`
+- `python scripts/loopright.py doctor <file-or-> [--format md|json]`
+- `python scripts/loopright.py validate-contract <file>`
+- `python scripts/loopright.py validate-contracts <path> [<path> ...]`
+- `python scripts/loopright.py validate-catalog [catalog-json]`
+- `python scripts/loopright.py catalog [--format md|json|llms]`
+- `python scripts/loopright.py template`
+
+All script paths are relative to this skill folder. Do not require repository-level files when the skill folder alone is installed.
 
 Use `scripts/validate-loop-contract.py <file>` to check whether a Markdown or text contract mentions the required LoopRight contract fields. This script is a lightweight completeness check, not a proof of correctness.
 

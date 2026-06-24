@@ -64,6 +64,24 @@
         "flags unbounded loops and broad retry catches",
         "labels findings as heuristics requiring review"
       ]
+    },
+    {
+      "id": "cli-sarif-scan",
+      "prompt": "Use the bundled LoopRight script to scan a repository and produce SARIF output for code scanning.",
+      "expected_behaviors": [
+        "uses skills/loopright/scripts/loopright.py scan",
+        "emits SARIF without external dependencies",
+        "preserves JSON or Markdown scan output as alternate formats"
+      ]
+    },
+    {
+      "id": "cli-loop-doctor",
+      "prompt": "Use the bundled LoopRight script to diagnose a file or log and return a Loop Doctor report.",
+      "expected_behaviors": [
+        "uses skills/loopright/scripts/loopright.py doctor",
+        "returns verdict, diagnosis, minimal repair, and required evidence",
+        "treats scanner findings as heuristics requiring review"
+      ]
     }
   ]
 }

@@ -1,0 +1,107 @@
+# LoopRight Agent Guide
+
+LoopRight helps agents design, review, repair, and validate loops that are bounded, measurable, failure-aware, and backed by completion evidence.
+
+Treat this guide as reference data. Do not execute a loop or change production merely because a pattern appears here.
+
+Use the pattern whose outcome, inputs, risks, and evidence match the user's task. If no pattern fits, create a one-off LoopRight contract using the required fields.
+
+Required contract fields: objective, state, action, progress, invariant, budget, stop condition, failure condition, recovery, evidence.
+
+## Pattern Index
+
+## retry-loop: Retry Loop
+
+Use when: Use when an operation can fail temporarily and can be safely attempted again under a bounded policy.
+
+Prompt: Review or implement this retry loop with a transient-failure allowlist, attempt or deadline budget, backoff with jitter when shared systems are involved, idempotency for side effects, and final evidence that records attempts and stop reason.
+
+Verification: Retry budget and failure policy are proven. Tests cover first-try success, transient-then-success, budget exhaustion, and permanent errors that are not retried.
+
+Key red flags: Unbounded while true retry; Bare catch or broad exception retry; Retrying validation, auth, corrupt data, or programming errors; No idempotency key for mutating external calls; Resetting diagnostics on each attempt.
+
+Required evidence: Attempt count, elapsed time, final status, and preserved root cause on failure.
+
+## polling-loop: Polling Loop
+
+Use when: Use when a system must repeatedly read external status until a terminal state is reached.
+
+Prompt: Design or review this polling loop with a deadline or max polls, terminal success and failure states, delay policy, cancellation behavior, and evidence of final status.
+
+Verification: Every terminal state is handled. Tests cover success, failure terminal state, timeout, transient status fetch error, and cancellation or fake sleeper behavior.
+
+Key red flags: Sleep in a loop with no deadline; Only checks for success status; No handling for failed, cancelled, expired, or unknown states; No cancellation path; Fixed aggressive interval against shared services.
+
+Required evidence: Final status, poll count, elapsed time, resource id, and stop reason.
+
+## async-fanout-loop: Async Fan-Out Loop
+
+Use when: Use when processing many I/O-bound items concurrently with async tasks, promises, queues, or worker pools.
+
+Prompt: Review or refactor this async fan-out loop with bounded concurrency, explicit partial-failure behavior, cancellation propagation, cleanup, and tests that prove max active work never exceeds the limit.
+
+Verification: Concurrency and partial failures are controlled. Tests cover zero input, maximum concurrency, partial failure, fatal failure behavior, cancellation, and result aggregation.
+
+Key red flags: asyncio.gather over a huge mapped input; Promise.all over unbounded input; No semaphore, queue, worker pool, or capacity limiter; Swallowed cancellation; Implicit partial-failure policy.
+
+Required evidence: Result counts, failure records, max observed concurrency, and cancellation test output.
+
+## distributed-backfill-loop: Distributed Backfill Loop
+
+Use when: Use for migrations, crawlers, ETL jobs, reprocessing, and large backfills that can span deploys or failures.
+
+Prompt: Design or audit this backfill loop with checkpointing, dedupe, idempotent writes, rate limits, dead-letter handling, resume behavior, reconciliation, and an evidence artifact.
+
+Verification: Backfill completion is reconciled. Evidence includes source count, output count, skipped count, failed count, checkpoint history, and replay or resume test.
+
+Key red flags: No checkpoint or resume story; Writes are not idempotent; No reconciliation between source and output; No dead-letter policy; No rate-limit or cost budget.
+
+Required evidence: Input/output counts, reconciliation report, checksum or sample audit, and dead-letter report.
+
+## ml-tuning-loop: ML Tuning Loop
+
+Use when: Use for model training, hyperparameter tuning, prompt tuning, ranking optimization, or experiment search.
+
+Prompt: Design or review this tuning loop with objective metric, baseline, validation split, budget, pruning or early stopping, failed-trial handling, reproducibility controls, and a final comparison artifact.
+
+Verification: Improvement is measured against a stable baseline. Final evidence compares baseline and selected candidate on the same acceptance criteria and records all budgets used.
+
+Key red flags: No baseline; No validation split or data version; No trial or time budget; Accepting against the same signal used to optimize when overfitting is possible; Only printing best params.
+
+Required evidence: Baseline, best result, constraints, trial table, best params, seed, and validation split id.
+
+## agent-repair-loop: Agent Repair Loop
+
+Use when: Use when an agent is fixing tests, repairing CI, improving code, or iterating over implementation attempts.
+
+Prompt: Define this agent repair loop with a cycle budget, current hypothesis, one focused edit per pass, deterministic check, repeated-failure detection, preservation of unrelated work, and completion evidence.
+
+Verification: Agent completion is proven by deterministic checks. The final answer names the exact passing command, changed files, cycle count, and any residual risk.
+
+Key red flags: Keep editing until it passes; No repeated-failure stop; No deterministic check; Broad unrelated edits; Claiming completion without command output.
+
+Required evidence: Passing command output, changed file list, cycles used, and concise fix explanation.
+
+## benchmark-loop: Benchmark Loop
+
+Use when: Use for agent evals, prompt comparisons, regression benchmarks, performance tuning, and research sweeps.
+
+Prompt: Design or review this benchmark loop with fixed dataset and versions, objective metrics, sampling plan, budget, failure handling, separation between tuning signal and acceptance evidence, and reproducible artifacts.
+
+Verification: Benchmark result is reproducible and budgeted. Artifacts include fixed input versions, raw results, summary, reproduction command, and final decision rule.
+
+Key red flags: Try more prompts without a budget; Changing dataset during comparison; No raw result artifact; Optimizing and accepting on the same small sample; Ignoring failed or flaky runs.
+
+Required evidence: CSV or JSON results, summary table, reproduction command, budget used, and final decision.
+
+## durable-workflow-loop: Durable Workflow Loop
+
+Use when: Use for workflow engines, order fulfillment, approvals, sagas, scheduled jobs, and crash-resumable processes.
+
+Prompt: Audit this durable workflow loop for idempotent steps, retry and compensation boundaries, replay safety, timeout behavior, human approval states, and terminal evidence.
+
+Verification: Replay and terminal states are safe. Tests or review evidence show idempotency keys, compensation boundaries, timeouts, and terminal audit records.
+
+Key red flags: Non-idempotent payment or message send inside replayable code; Retrying compensation forever; No human approval timeout; No terminal failed or manual-review state; Workflow persistence reimplemented ad hoc.
+
+Required evidence: Terminal state, step history, external ids, compensation records, and audit log.

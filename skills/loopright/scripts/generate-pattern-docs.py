@@ -137,9 +137,10 @@ def main(argv: list[str]) -> int:
     (output_dir / "catalog.md").write_text(markdown, encoding="utf-8")
     (output_dir / "llms.txt").write_text(llms, encoding="utf-8")
 
-    skill_refs = Path("skills/loopright/references")
+    skill_refs = Path(__file__).resolve().parents[1] / "references"
     if skill_refs.is_dir():
         (skill_refs / "pattern-catalog.md").write_text(markdown, encoding="utf-8")
+        (skill_refs / "llms.txt").write_text(llms, encoding="utf-8")
         (skill_refs / "pattern-catalog.json").write_text(
             json.dumps(catalog, indent=2) + "\n",
             encoding="utf-8",
@@ -151,4 +152,3 @@ def main(argv: list[str]) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main(sys.argv))
-

@@ -27,6 +27,45 @@ LoopRight can be used even before installation:
 
 The catalog includes patterns for retry loops, polling loops, async fan-out, distributed backfills, ML tuning, agent repair, benchmark loops, and durable workflows.
 
+## Practical Tooling
+
+LoopRight also ships a pure-Python command front door inside the installable skill folder. It uses only the standard library and sibling files under `skills/loopright`, so the skill still works when copied by itself.
+
+Scan a repository for risky loops:
+
+```bash
+python skills/loopright/scripts/loopright.py scan . --format md
+```
+
+Generate machine-readable output:
+
+```bash
+python skills/loopright/scripts/loopright.py scan . --format json
+python skills/loopright/scripts/loopright.py scan . --format sarif --output loopright.sarif
+```
+
+Turn a file, prompt, or run log into a Loop Doctor report:
+
+```bash
+python skills/loopright/scripts/loopright.py doctor path/to/file.py
+```
+
+Validate contracts and catalog data:
+
+```bash
+python skills/loopright/scripts/loopright.py validate-contract examples/retry-loop/loop-contract.md
+python skills/loopright/scripts/loopright.py validate-contracts examples
+python skills/loopright/scripts/loopright.py validate-catalog
+```
+
+Print bundled references from the installed skill:
+
+```bash
+python skills/loopright/scripts/loopright.py catalog --format md
+python skills/loopright/scripts/loopright.py catalog --format llms
+python skills/loopright/scripts/loopright.py template
+```
+
 ## Where LoopRight Is Useful
 
 LoopRight is most valuable when a loop is expensive, long-running, agent-driven, concurrent, or tied to external systems. These are the tasks where "just retry", "keep polling", or "iterate until it works" can quietly become runaway cost, duplicate side effects, bad metrics, or false completion.
@@ -331,13 +370,13 @@ python C:/Users/ashis/.codex/skills/.system/skill-creator/scripts/quick_validate
 Run the bundled loop contract check:
 
 ```bash
-python skills/loopright/scripts/validate-loop-contract.py examples/retry-loop/loop-contract.md
+python skills/loopright/scripts/loopright.py validate-contract examples/retry-loop/loop-contract.md
 ```
 
 Validate the pattern catalog:
 
 ```bash
-python skills/loopright/scripts/validate-pattern-catalog.py catalog/loopright-patterns.json
+python skills/loopright/scripts/loopright.py validate-catalog catalog/loopright-patterns.json
 ```
 
 Regenerate public catalog files:
@@ -349,7 +388,7 @@ python skills/loopright/scripts/generate-pattern-docs.py catalog/loopright-patte
 Discover loop risks in a repository:
 
 ```bash
-python skills/loopright/scripts/discover-loop-risks.py .
+python skills/loopright/scripts/loopright.py scan .
 ```
 
 ## More Example Tasks
