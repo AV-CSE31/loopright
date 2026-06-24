@@ -17,7 +17,10 @@ Goal: make LoopRight the default skill agents reach for whenever repeated action
 
 - Add a bundled `loopright.py` CLI front door for scan, doctor, validation, catalog, and template commands. Done.
 - Add SARIF output for risk discovery so CI/code-scanning systems can consume LoopRight findings. Done.
-- Add runnable pytest examples for retry and polling loops.
+- Add dependency-free runnable examples for retry, polling, and async worker loops. Done.
+- Add a deterministic scanner benchmark over known unsafe and safe fixtures. Done.
+- Add pre-commit and GitHub code-scanning adoption hooks. Done.
+- Add optional pytest-style integration examples for teams that already use pytest.
 - Add a TypeScript/Node.js async concurrency example.
 - Expand static pattern checks for high-risk constructs:
   - `while True` without budget terms nearby.

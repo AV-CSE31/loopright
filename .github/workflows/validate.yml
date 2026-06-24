@@ -27,6 +27,12 @@ jobs:
           python skills/loopright/scripts/loopright.py validate-catalog catalog/loopright-patterns.json
           python skills/loopright/scripts/generate-pattern-docs.py catalog/loopright-patterns.json catalog
           git diff --exit-code -- catalog/catalog.md catalog/llms.txt skills/loopright/references/pattern-catalog.md skills/loopright/references/pattern-catalog.json skills/loopright/references/llms.txt
+      - name: Run runnable examples
+        run: |
+          python -m unittest discover -s examples/runnable/python -p "test_*.py"
+      - name: Run scanner benchmark
+        run: |
+          python benchmarks/run_loopright_benchmark.py
       - name: Discover loop risks
         run: |
           python skills/loopright/scripts/loopright.py scan skills/loopright/scripts --format sarif --output loopright.sarif

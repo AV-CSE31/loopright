@@ -72,7 +72,7 @@ RISK_PATTERNS = [
 
 
 BUDGET_TERMS = re.compile(
-    r"\b(max|limit|deadline|timeout|cancel|cancellation|budget|attempt|poll|terminal|stop|until|elapsed|ttl)\b",
+    r"\b(max|limit|deadline|timeout|cancel|cancellation|budget|attempt|poll|terminal|stop|elapsed|ttl|concurrency|bounded|worker|queue|capacity|semaphore|dead[-_]?letter\w*)\b",
     re.IGNORECASE,
 )
 

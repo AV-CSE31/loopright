@@ -1,0 +1,7 @@
+- id: loopright-scan
+  name: LoopRight risk scan
+  description: Discover dangerous or under-specified loops before commit.
+  entry: skills/loopright/scripts/loopright.py scan --fail-on-risk
+  language: script
+  pass_filenames: true
+  types_or: [python, javascript, jsx, ts, tsx, markdown, yaml]

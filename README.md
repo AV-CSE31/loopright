@@ -66,6 +66,42 @@ python skills/loopright/scripts/loopright.py catalog --format llms
 python skills/loopright/scripts/loopright.py template
 ```
 
+## Proof Pack
+
+Run dependency-free examples that show unsafe loop ideas repaired into bounded implementations:
+
+```bash
+python -m unittest discover -s examples/runnable/python -p "test_*.py"
+```
+
+Run the deterministic scanner benchmark:
+
+```bash
+python benchmarks/run_loopright_benchmark.py
+```
+
+The benchmark checks known unsafe and safe fixtures and reports precision, recall, false positives, and false negatives for high-confidence scanner findings.
+
+Case studies:
+
+- [Runaway retry cost](docs/case-studies.md#runaway-retry-cost)
+- [Unbounded async fan-out](docs/case-studies.md#unbounded-async-fan-out)
+- [Coding-agent repair churn](docs/case-studies.md#coding-agent-repair-churn)
+
+## Adoption Hooks
+
+Use LoopRight with pre-commit:
+
+```yaml
+repos:
+  - repo: https://github.com/AV-CSE31/loopright
+    rev: main
+    hooks:
+      - id: loopright-scan
+```
+
+Use LoopRight in GitHub code scanning by adapting [.github/workflows/loopright-code-scanning.yml](.github/workflows/loopright-code-scanning.yml). The workflow emits SARIF from the bundled CLI and uploads it with GitHub's SARIF uploader.
+
 ## Where LoopRight Is Useful
 
 LoopRight is most valuable when a loop is expensive, long-running, agent-driven, concurrent, or tied to external systems. These are the tasks where "just retry", "keep polling", or "iterate until it works" can quietly become runaway cost, duplicate side effects, bad metrics, or false completion.
@@ -394,6 +430,8 @@ python skills/loopright/scripts/loopright.py scan .
 ## More Example Tasks
 
 See [examples/tasks/README.md](examples/tasks/README.md) for additional tested prompts and LoopRight-style outputs across retry, polling, async batch, ML tuning, and agent repair loops.
+
+See [examples/runnable/README.md](examples/runnable/README.md) for dependency-free runnable examples with tests.
 
 ## Research-Backed Skill Design
 
