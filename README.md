@@ -88,6 +88,14 @@ Case studies:
 - [Unbounded async fan-out](docs/case-studies.md#unbounded-async-fan-out)
 - [Coding-agent repair churn](docs/case-studies.md#coding-agent-repair-churn)
 
+Field guide examples with realistic prompts, risky starting points, LoopRight contracts, repairs, and required evidence:
+
+- [Billing webhook replay](examples/field-guide/billing-webhook-replay.md)
+- [Embedding backfill](examples/field-guide/embedding-backfill.md)
+- [CI job poller](examples/field-guide/ci-job-poller.md)
+- [Realtime enrichment fan-out](examples/field-guide/realtime-enrichment-fanout.md)
+- [Support agent repair loop](examples/field-guide/support-agent-repair-loop.md)
+
 ## Adoption Hooks
 
 Use LoopRight with pre-commit:
@@ -427,11 +435,19 @@ Discover loop risks in a repository:
 python skills/loopright/scripts/loopright.py scan .
 ```
 
+This repository includes intentional unsafe snippets in `examples/` and `benchmarks/fixtures/` to demonstrate LoopRight findings. For a clean self-scan of the tool code, run:
+
+```bash
+python skills/loopright/scripts/loopright.py scan skills/loopright/scripts --fail-on-risk
+```
+
 ## More Example Tasks
 
 See [examples/tasks/README.md](examples/tasks/README.md) for additional tested prompts and LoopRight-style outputs across retry, polling, async batch, ML tuning, and agent repair loops.
 
 See [examples/runnable/README.md](examples/runnable/README.md) for dependency-free runnable examples with tests.
+
+See [examples/field-guide/README.md](examples/field-guide/README.md) for more realistic examples that include operational constraints, bad starting points, repair plans, and evidence.
 
 ## Research-Backed Skill Design
 

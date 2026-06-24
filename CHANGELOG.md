@@ -6,6 +6,7 @@
 - Added deterministic scanner benchmark fixtures and runner.
 - Added pre-commit hook metadata and GitHub SARIF code-scanning workflow.
 - Added case studies for retry cost, async fan-out, and agent repair churn.
+- Added realistic field-guide examples for billing replay, embedding backfills, CI polling, realtime enrichment, and agent repair loops.
 
 ## 0.1.0
 

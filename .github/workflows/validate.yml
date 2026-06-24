@@ -21,7 +21,8 @@ jobs:
             examples/async-processing \
             examples/ml-tuning \
             examples/agent-loop \
-            examples/tasks
+            examples/tasks \
+            examples/field-guide
       - name: Validate pattern catalog
         run: |
           python skills/loopright/scripts/loopright.py validate-catalog catalog/loopright-patterns.json

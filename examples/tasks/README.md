@@ -28,3 +28,4 @@ Use $loopright at skills/loopright to solve examples/tasks/retry-upload-review.m
 
 The output should define the loop contract before proposing code, identify risks by severity when reviewing code, and end with concrete completion evidence.
 
+For more realistic end-to-end examples with bad starting points, operational constraints, repairs, and evidence, see [../field-guide/README.md](../field-guide/README.md).
