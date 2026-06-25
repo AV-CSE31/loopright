@@ -82,6 +82,15 @@
         "returns verdict, diagnosis, minimal repair, and required evidence",
         "treats scanner findings as heuristics requiring review"
       ]
+    },
+    {
+      "id": "autonomous-decision-loop",
+      "prompt": "Use $loopright to design a connector-backed autonomous agent loop that proposes actions, verifies them independently, executes only permitted side effects, and updates memory safely.",
+      "expected_behaviors": [
+        "requires maker-checker or deterministic verification before consequential side effects",
+        "defines durable state, audit log, permission boundary, and idempotency policy",
+        "requires kill switch, connector risk controls, and reviewed memory updates"
+      ]
     }
   ]
 }

@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "name": "LoopRight Pattern Catalog",
   "description": "Engineering-grade loop patterns for designing, reviewing, repairing, and validating bounded, measurable, failure-aware loops.",
-  "updated": "2026-06-24",
+  "updated": "2026-06-25",
   "requiredContractFields": [
     "objective",
     "state",
@@ -352,7 +352,8 @@
       ],
       "relatedPatterns": [
         "benchmark-loop",
-        "ml-tuning-loop"
+        "ml-tuning-loop",
+        "autonomous-decision-loop"
       ],
       "keywords": [
         "coding agent",
@@ -410,7 +411,8 @@
       "relatedPatterns": [
         "ml-tuning-loop",
         "agent-repair-loop",
-        "polling-loop"
+        "polling-loop",
+        "autonomous-decision-loop"
       ],
       "keywords": [
         "benchmark",
@@ -468,7 +470,8 @@
       "relatedPatterns": [
         "retry-loop",
         "polling-loop",
-        "distributed-backfill-loop"
+        "distributed-backfill-loop",
+        "autonomous-decision-loop"
       ],
       "keywords": [
         "workflow",
@@ -476,6 +479,71 @@
         "idempotency",
         "compensation",
         "saga"
+      ]
+    },
+    {
+      "id": "LR-010",
+      "slug": "autonomous-decision-loop",
+      "title": "Autonomous Decision Loop",
+      "category": "agent",
+      "summary": "Let an agent observe state, propose actions, verify decisions, execute through tools, and update memory without losing permission, audit, or kill-switch control.",
+      "useWhen": "Use when an agent loop wakes on a trigger or cadence, reads durable state, proposes a consequential action, verifies it with independent checks, executes through connectors or tools, records outcomes, and updates memory for future runs.",
+      "prompt": "Design or audit this autonomous decision loop with an automation trigger, durable state store, maker-checker verification, explicit side-effect permissions, connector idempotency, kill switch, audit log, memory-update governance, and evidence for every executed or skipped action.",
+      "contract": {
+        "objective": "Safely convert observed state into verified actions or explicit no-action decisions while preserving auditability and bounded risk.",
+        "state": "Trigger source, state snapshot, proposed action, verifier verdict, permission status, connector result, risk monitor state, audit record, and pending memory updates.",
+        "action": "Wake on trigger, read state, propose action, verify with independent checks, execute only permitted side effects, record outcome, and queue reviewed memory updates.",
+        "progress": "Verified action or no-action records accumulate and unresolved decisions, stale state, or unreviewed memory updates decrease.",
+        "invariant": "No consequential side effect runs before verification and permission checks, every connector call is idempotent or compensated, and memory updates do not become rules without review.",
+        "budget": "Cadence, max runtime, max decisions per run, tool-call or cost cap, connector rate limits, approval limits, and risk thresholds.",
+        "stop condition": "No eligible action remains, a verified action is recorded, human approval is required, the kill switch trips, or a runtime/cost/risk budget is exhausted.",
+        "failure condition": "Verifier rejects the proposal, deterministic checks fail, state is stale or corrupt, connector idempotency is missing, risk limits are breached, or the audit log cannot be written.",
+        "recovery": "Abort side effects, freeze or roll back pending actions where possible, mark the decision dead-lettered, escalate for review, and quarantine unapproved memory changes.",
+        "evidence": "Trigger id, state snapshot hash, verifier verdict, deterministic metrics, permission decision, connector side-effect ids or dry-run output, audit log, risk monitor status, and reviewed memory changes."
+      },
+      "redFlags": [
+        "The same agent proposes and approves consequential actions",
+        "State lives only in chat history or prompt memory",
+        "Tool calls can mutate real systems without dry run, approval, or idempotency",
+        "Lessons are written directly into future rules without review",
+        "No kill switch or risk monitor loop",
+        "Completion depends on the agent saying the action is safe"
+      ],
+      "verification": {
+        "title": "Every autonomous action is verified, permissioned, and auditable.",
+        "detail": "Evidence shows the trigger, state snapshot, maker proposal, independent verifier decision, deterministic metrics, side-effect ids or dry-run output, risk guard status, and reviewed memory updates."
+      },
+      "tests": [
+        "Rejects an action when the independent verifier fails",
+        "Blocks side effects when permission or idempotency is missing",
+        "Stops when the kill switch or risk threshold trips",
+        "Records an audit artifact for action and no-action decisions",
+        "Queues lessons for review instead of immediately changing future rules"
+      ],
+      "failureModes": [
+        "False self-approval",
+        "Runaway real-world side effects",
+        "State drift or stale memory",
+        "Connector action without audit trail",
+        "Overfitting rules to one bad outcome",
+        "Kill switch bypass"
+      ],
+      "relatedPatterns": [
+        "agent-repair-loop",
+        "benchmark-loop",
+        "durable-workflow-loop",
+        "ml-tuning-loop",
+        "polling-loop",
+        "distributed-backfill-loop"
+      ],
+      "keywords": [
+        "autonomous agent",
+        "maker checker",
+        "state file",
+        "connector",
+        "kill switch",
+        "audit log",
+        "memory governance"
       ]
     }
   ]

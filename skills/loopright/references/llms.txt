@@ -105,3 +105,15 @@ Verification: Replay and terminal states are safe. Tests or review evidence show
 Key red flags: Non-idempotent payment or message send inside replayable code; Retrying compensation forever; No human approval timeout; No terminal failed or manual-review state; Workflow persistence reimplemented ad hoc.
 
 Required evidence: Terminal state, step history, external ids, compensation records, and audit log.
+
+## autonomous-decision-loop: Autonomous Decision Loop
+
+Use when: Use when an agent loop wakes on a trigger or cadence, reads durable state, proposes a consequential action, verifies it with independent checks, executes through connectors or tools, records outcomes, and updates memory for future runs.
+
+Prompt: Design or audit this autonomous decision loop with an automation trigger, durable state store, maker-checker verification, explicit side-effect permissions, connector idempotency, kill switch, audit log, memory-update governance, and evidence for every executed or skipped action.
+
+Verification: Every autonomous action is verified, permissioned, and auditable. Evidence shows the trigger, state snapshot, maker proposal, independent verifier decision, deterministic metrics, side-effect ids or dry-run output, risk guard status, and reviewed memory updates.
+
+Key red flags: The same agent proposes and approves consequential actions; State lives only in chat history or prompt memory; Tool calls can mutate real systems without dry run, approval, or idempotency; Lessons are written directly into future rules without review; No kill switch or risk monitor loop; Completion depends on the agent saying the action is safe.
+
+Required evidence: Trigger id, state snapshot hash, verifier verdict, deterministic metrics, permission decision, connector side-effect ids or dry-run output, audit log, risk monitor status, and reviewed memory changes.
