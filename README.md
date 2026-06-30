@@ -25,7 +25,7 @@ That makes it useful for code review, architecture design, incident repair, ML t
 | Portable Agent Skill | Works as a self-contained `skills/loopright` folder for Codex, Claude Code, and compatible agents. | [skills/loopright/SKILL.md](skills/loopright/SKILL.md) |
 | Loop Doctor | Diagnoses loop prompts, code, architecture, or run logs with verdict, findings, minimal repair, and required evidence. | [loop-doctor.md](skills/loopright/references/loop-doctor.md) |
 | Loop Contract | Forces objective, state, action, progress, invariant, budget, stop, failure, recovery, and evidence before implementation. | [contract template](skills/loopright/templates/loop-contract-template.md) |
-| Pattern Catalog | Machine-readable and human-readable loop patterns for retry, polling, fan-out, backfill, ML tuning, agents, benchmarks, and durable workflows. | [catalog JSON](catalog/loopright-patterns.json), [catalog guide](catalog/catalog.md) |
+| Pattern Catalog | Machine-readable and human-readable loop patterns for retry, polling, fan-out, backfill, ML tuning, agents, autonomous decisions, benchmarks, and durable workflows. | [catalog JSON](catalog/loopright-patterns.json), [catalog guide](catalog/catalog.md) |
 | CLI Front Door | One command surface for scan, doctor, validation, catalog, and template operations. | [loopright.py](skills/loopright/scripts/loopright.py) |
 | Risk Scanner | Detects risky loops such as unbounded `while True`, broad retry catches, polling without deadline, unbounded async fan-out, weak agent loops, and ML tuning without budget. | `python skills/loopright/scripts/loopright.py scan .` |
 | SARIF Output | Emits code-scanning output that can be uploaded to GitHub Advanced Security or other SARIF consumers. | [.github/workflows/loopright-code-scanning.yml](.github/workflows/loopright-code-scanning.yml) |
@@ -44,6 +44,7 @@ That makes it useful for code review, architecture design, incident repair, ML t
 - ML training and hyperparameter-tuning loops
 - Iterative code-repair loops
 - Agent tool-use loops
+- Autonomous decision loops with state, verifier, connector, audit, and kill-switch boundaries
 - Durable workflow design review
 
 LoopRight is not a runtime, API wrapper, task queue, retry framework, workflow engine, MCP server, or chatbot. The v0.1 product is procedural engineering knowledge plus deterministic supporting checks.
@@ -56,7 +57,7 @@ LoopRight can be used even before installation:
 - [Human-readable pattern catalog](catalog/catalog.md)
 - [Agent guide / llms.txt](catalog/llms.txt)
 
-The catalog includes patterns for retry loops, polling loops, async fan-out, distributed backfills, ML tuning, agent repair, benchmark loops, and durable workflows.
+The catalog includes patterns for retry loops, polling loops, async fan-out, distributed backfills, ML tuning, agent repair, autonomous decisions, benchmark loops, and durable workflows.
 
 ## Practical Tooling
 
@@ -126,6 +127,7 @@ Field guide examples with realistic prompts, risky starting points, LoopRight co
 - [CI job poller](examples/field-guide/ci-job-poller.md)
 - [Realtime enrichment fan-out](examples/field-guide/realtime-enrichment-fanout.md)
 - [Support agent repair loop](examples/field-guide/support-agent-repair-loop.md)
+- [Autonomous quant research loop](examples/field-guide/autonomous-quant-research-loop.md)
 
 ## Adoption Hooks
 
@@ -152,6 +154,7 @@ Use it for high-skill engineering work such as:
 - Hardening async workers, queues, schedulers, and batch processors.
 - Structuring ML training, evaluation, and hyperparameter-tuning loops.
 - Controlling coding-agent repair loops so they stop repeating failed actions.
+- Auditing autonomous agent loops that use state files, verifiers, connectors, and kill switches.
 - Designing research or benchmark loops with budgets, progress signals, and evidence.
 - Auditing workflow engines or orchestration code before it ships.
 

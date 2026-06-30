@@ -1,6 +1,6 @@
 ---
 name: loopright
-description: Design, implement, refactor, or review safe, bounded, measurable, failure-aware loops. Use for Python, JavaScript, TypeScript, retries, polling, async concurrency, data processing, ML tuning, optimization, iterative code repair, agent tool-use loops, and durable workflow design. Do not use for simple one-pass code that requires no iteration.
+description: Design, implement, refactor, or review safe, bounded, measurable, failure-aware loops. Use for Python, JavaScript, TypeScript, retries, polling, async concurrency, data processing, ML tuning, optimization, iterative code repair, agent tool-use loops, autonomous decision loops, connector-backed side effects, and durable workflow design. Do not use for simple one-pass code that requires no iteration.
 ---
 
 # LoopRight
@@ -105,6 +105,7 @@ Prefer existing project conventions and mature libraries:
 | Model training | Existing ML framework training loop |
 | Crash-resumable workflow | Existing durable execution runtime |
 | Agent tool loop | Explicit action, budget, evidence, and stop policy |
+| Autonomous decision loop | Trigger, state store, independent verifier, side-effect permissions, audit log, and kill switch |
 
 Do not reimplement task groups, retry frameworks, workflow persistence, distributed locks, schedulers, experiment trackers, or hyperparameter samplers.
 
@@ -118,6 +119,8 @@ Do not reimplement task groups, retry frameworks, workflow persistence, distribu
 - Record progress in a way tests or operators can inspect.
 - Claim completion only when evidence exists.
 - Avoid introducing LLM decisions when deterministic checks can decide.
+- Do not let the same agent both propose and approve consequential side effects without an independent verifier or deterministic gate.
+- For connector-backed loops, require dry-run or permission boundaries, idempotency or compensation, audit records, and a kill-switch condition.
 
 ## Red Flags
 
@@ -129,6 +132,7 @@ Escalate these immediately:
 - Creating unbounded async tasks from unbounded input.
 - Optimization or training loops without baseline, validation split, or budget.
 - Agent repair loops that repeat the same failed action without a changed hypothesis.
+- Autonomous loops that mutate real systems without maker-checker verification, permission boundaries, audit logs, or kill switches.
 - Final answers that claim success without command output, metrics, artifacts, or review evidence.
 - A loop that optimizes and accepts against the same signal when overfitting is possible.
 - A repeated-work claim based on one occurrence or a code smell without run-history evidence.
