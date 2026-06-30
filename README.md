@@ -28,6 +28,7 @@ That makes it useful for code review, architecture design, incident repair, ML t
 | Pattern Catalog | Machine-readable and human-readable loop patterns for retry, polling, fan-out, backfill, ML tuning, agents, autonomous decisions, benchmarks, and durable workflows. | [catalog JSON](catalog/loopright-patterns.json), [catalog guide](catalog/catalog.md) |
 | CLI Front Door | One command surface for scan, doctor, validation, catalog, and template operations. | [loopright.py](skills/loopright/scripts/loopright.py) |
 | Risk Scanner | Detects risky loops such as unbounded `while True`, broad retry catches, polling without deadline, unbounded async fan-out, weak agent loops, and ML tuning without budget. | `python skills/loopright/scripts/loopright.py scan .` |
+| Loop Evidence Bundles | Validates completed loop runs for contract completeness, budget usage, verifier verdict, artifacts, traces, and side-effect controls. | [evidence bundle guide](skills/loopright/references/evidence-bundles.md), [examples](examples/evidence-bundles) |
 | SARIF Output | Emits code-scanning output that can be uploaded to GitHub Advanced Security or other SARIF consumers. | [.github/workflows/loopright-code-scanning.yml](.github/workflows/loopright-code-scanning.yml) |
 | Pre-commit Hook | Lets teams block high-confidence loop risks before code lands. | [.pre-commit-hooks.yaml](.pre-commit-hooks.yaml) |
 | Runnable Proof Pack | Standard-library examples with tests for retry loops, polling loops, and bounded async worker pools. | [examples/runnable](examples/runnable) |
@@ -45,6 +46,7 @@ That makes it useful for code review, architecture design, incident repair, ML t
 - Iterative code-repair loops
 - Agent tool-use loops
 - Autonomous decision loops with state, verifier, connector, audit, and kill-switch boundaries
+- Post-run evidence bundles for proving loop completion
 - Durable workflow design review
 
 LoopRight is not a runtime, API wrapper, task queue, retry framework, workflow engine, MCP server, or chatbot. The v0.1 product is procedural engineering knowledge plus deterministic supporting checks.
@@ -88,6 +90,7 @@ Validate contracts and catalog data:
 python skills/loopright/scripts/loopright.py validate-contract examples/retry-loop/loop-contract.md
 python skills/loopright/scripts/loopright.py validate-contracts examples
 python skills/loopright/scripts/loopright.py validate-catalog
+python skills/loopright/scripts/loopright.py validate-run examples/evidence-bundles/agent-repair-run.json
 ```
 
 Print bundled references from the installed skill:
@@ -96,6 +99,7 @@ Print bundled references from the installed skill:
 python skills/loopright/scripts/loopright.py catalog --format md
 python skills/loopright/scripts/loopright.py catalog --format llms
 python skills/loopright/scripts/loopright.py template
+python skills/loopright/scripts/loopright.py template --kind run-evidence
 ```
 
 ## Proof Pack
@@ -113,6 +117,13 @@ python benchmarks/run_loopright_benchmark.py
 ```
 
 The benchmark checks known unsafe and safe fixtures and reports precision, recall, false positives, and false negatives for high-confidence scanner findings.
+
+Validate completed loop evidence bundles:
+
+```bash
+python skills/loopright/scripts/loopright.py validate-run examples/evidence-bundles/agent-repair-run.json --fail-on-warning
+python skills/loopright/scripts/loopright.py validate-run examples/evidence-bundles/autonomous-quant-paper-run.json --fail-on-warning
+```
 
 Case studies:
 
@@ -483,6 +494,8 @@ See [examples/runnable/README.md](examples/runnable/README.md) for dependency-fr
 
 See [examples/field-guide/README.md](examples/field-guide/README.md) for more realistic examples that include operational constraints, bad starting points, repair plans, and evidence.
 
+See [examples/evidence-bundles/README.md](examples/evidence-bundles/README.md) for machine-readable run evidence that CI or another agent can validate.
+
 ## Research-Backed Skill Design
 
 LoopRight follows patterns from OpenAI Codex, Claude Code, GitHub Copilot, and public Agent Skills repositories:
@@ -495,6 +508,7 @@ LoopRight follows patterns from OpenAI Codex, Claude Code, GitHub Copilot, and p
 
 See [docs/research/top-skill-patterns.md](docs/research/top-skill-patterns.md).
 See [docs/research/loop-library-leverage-deep-research.md](docs/research/loop-library-leverage-deep-research.md) for the Loop Library comparison and implementation notes.
+See [docs/research/loop-evidence-bundles.md](docs/research/loop-evidence-bundles.md) for the research behind run evidence bundles and validator gates.
 
 ## Roadmap
 

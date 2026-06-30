@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 1,
+  "loopId": "agent-repair-checkout-test",
+  "loopType": "agent-repair-loop",
+  "objective": "Make the checkout retry test pass without changing unrelated behavior.",
+  "contract": {
+    "objective": "Make the checkout retry test pass without changing unrelated behavior.",
+    "state": "Current failing assertion, current hypothesis, changed files, and latest test output.",
+    "action": "Inspect the failure, make one focused edit, run the narrow deterministic test, and record the result.",
+    "progress": "The failure signature changes or the target test passes.",
+    "invariant": "Preserve unrelated user changes and do not broaden production retry behavior beyond the test requirement.",
+    "budget": {
+      "maxIterations": 6,
+      "maxSeconds": 1800,
+      "maxCostUsd": 2
+    },
+    "stopCondition": "The target test passes or the iteration budget is exhausted.",
+    "failureCondition": "The same failure signature appears three times without a changed hypothesis.",
+    "recovery": "Change hypothesis, narrow the reproduction, or escalate ambiguous requirements.",
+    "evidence": "Target test command output, changed-file list, cycle count, and repeated-failure guard status."
+  },
+  "run": {
+    "startedAt": "2026-06-30T08:00:00Z",
+    "endedAt": "2026-06-30T08:12:00Z",
+    "status": "completed",
+    "stopReason": "target-check-passed",
+    "iterationsUsed": 3,
+    "secondsUsed": 720,
+    "costUsd": 0.34
+  },
+  "iterations": [
+    {
+      "index": 1,
+      "hypothesis": "Retry policy returns too early after a transient payment timeout.",
+      "action": "Reproduced the failure and inspected retry policy branch selection.",
+      "progress": "Failure reproduced with the expected assertion.",
+      "status": "changed",
+      "checks": [
+        {
+          "name": "narrow pytest reproduction",
+          "command": "pytest tests/checkout/test_payment_retry.py -q",
+          "status": "failed",
+          "evidenceRef": "artifacts/checkout-repair-cycle-1.log"
+        }
+      ],
+      "failureSignature": "assert retry_count == 2"
+    },
+    {
+      "index": 2,
+      "hypothesis": "The timeout branch is not classified as transient.",
+      "action": "Added the timeout code to the existing transient allowlist.",
+      "progress": "Failure moved from retry count to final response assertion.",
+      "status": "changed",
+      "checks": [
+        {
+          "name": "narrow pytest after transient allowlist edit",
+          "command": "pytest tests/checkout/test_payment_retry.py -q",
+          "status": "failed",
+          "evidenceRef": "artifacts/checkout-repair-cycle-2.log"
+        }
+      ],
+      "failureSignature": "assert response.status_code == 200"
+    },
+    {
+      "index": 3,
+      "hypothesis": "The final successful response is not propagated after retry.",
+      "action": "Returned the final successful response from the retry loop.",
+      "progress": "The target test passed.",
+      "status": "passed",
+      "checks": [
+        {
+          "name": "narrow pytest completion check",
+          "command": "pytest tests/checkout/test_payment_retry.py -q",
+          "status": "passed",
+          "evidenceRef": "artifacts/checkout-repair-cycle-3.log"
+        }
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "kind": "test-output",
+      "path": "artifacts/checkout-repair-cycle-3.log",
+      "sha256": "0f2a5f4d0f2a5f4d0f2a5f4d0f2a5f4d0f2a5f4d0f2a5f4d0f2a5f4d0f2a5f4d"
+    }
+  ],
+  "verifier": {
+    "type": "deterministic",
+    "name": "pytest",
+    "verdict": "pass"
+  },
+  "riskControls": {
+    "permissionBoundary": "dry-run",
+    "killSwitchChecked": true,
+    "sideEffects": [
+      {
+        "kind": "git-change",
+        "target": "checkout/retry_policy.py",
+        "idempotencyKey": "branch:agent-repair-checkout-test",
+        "auditRef": "artifacts/checkout-repair-cycle-3.log"
+      }
+    ]
+  },
+  "trace": {
+    "traceId": "checkout-repair-20260630-080000",
+    "spanCount": 9,
+    "provider": "local-test-log"
+  }
+}

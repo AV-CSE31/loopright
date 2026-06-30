@@ -91,6 +91,15 @@
         "defines durable state, audit log, permission boundary, and idempotency policy",
         "requires kill switch, connector risk controls, and reviewed memory updates"
       ]
+    },
+    {
+      "id": "loop-evidence-bundle",
+      "prompt": "Use $loopright to validate a completed agent repair loop run evidence bundle.",
+      "expected_behaviors": [
+        "uses skills/loopright/scripts/loopright.py validate-run",
+        "checks contract fields, budgets, verifier verdict, artifacts, and side-effect controls",
+        "reports blocking errors separately from warnings about hashes, traces, repeated failures, or weak verifiers"
+      ]
     }
   ]
 }

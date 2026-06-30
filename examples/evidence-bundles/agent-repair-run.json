@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "loopId": "checkout-payment-retry-repair-20260630",
+  "loopType": "agent-repair-loop",
+  "objective": "Repair the checkout payment retry test and prove the fix with the narrow deterministic check.",
+  "contract": {
+    "objective": "Repair the checkout payment retry test and prove the fix with the narrow deterministic check.",
+    "state": "Current failure signature, current hypothesis, edited files, and latest pytest output.",
+    "action": "Reproduce the failing test, make one focused edit, run the narrow test, and record whether the failure changed.",
+    "progress": "The failure signature changes between cycles or the target test passes.",
+    "invariant": "Do not alter unrelated checkout behavior or overwrite unrelated user changes.",
+    "budget": {
+      "maxIterations": 6,
+      "maxSeconds": 1800,
+      "maxCostUsd": 2
+    },
+    "stopCondition": "The target test passes or the cycle budget is exhausted.",
+    "failureCondition": "The same failure signature appears three times without a changed hypothesis.",
+    "recovery": "Change the hypothesis, narrow the reproduction, or escalate ambiguous requirements.",
+    "evidence": "Pytest output, changed-file list, cycle count, and repeated-failure guard status."
+  },
+  "run": {
+    "startedAt": "2026-06-30T08:00:00Z",
+    "endedAt": "2026-06-30T08:11:42Z",
+    "status": "completed",
+    "stopReason": "target-check-passed",
+    "iterationsUsed": 3,
+    "secondsUsed": 702,
+    "costUsd": 0.28
+  },
+  "iterations": [
+    {
+      "index": 1,
+      "hypothesis": "The retry loop treats the gateway timeout as permanent.",
+      "action": "Reproduced the failure and inspected the retry classification table.",
+      "progress": "Failure reproduced with retry_count assertion.",
+      "status": "changed",
+      "checks": [
+        {
+          "name": "reproduce checkout retry failure",
+          "command": "pytest tests/checkout/test_payment_retry.py -q",
+          "status": "failed",
+          "evidenceRef": "artifacts/checkout-repair-cycle-1.log"
+        }
+      ],
+      "failureSignature": "assert retry_count == 2"
+    },
+    {
+      "index": 2,
+      "hypothesis": "Timeout is transient, but the final successful response is not returned.",
+      "action": "Added the timeout code to the transient allowlist and reran the target check.",
+      "progress": "Failure moved to final response assertion.",
+      "status": "changed",
+      "checks": [
+        {
+          "name": "verify timeout allowlist edit",
+          "command": "pytest tests/checkout/test_payment_retry.py -q",
+          "status": "failed",
+          "evidenceRef": "artifacts/checkout-repair-cycle-2.log"
+        }
+      ],
+      "failureSignature": "assert response.status_code == 200"
+    },
+    {
+      "index": 3,
+      "hypothesis": "The final successful response is being discarded after retry.",
+      "action": "Returned the final successful response from the bounded retry loop.",
+      "progress": "The target test passed.",
+      "status": "passed",
+      "checks": [
+        {
+          "name": "checkout retry completion check",
+          "command": "pytest tests/checkout/test_payment_retry.py -q",
+          "status": "passed",
+          "evidenceRef": "artifacts/checkout-repair-cycle-3.log"
+        }
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "kind": "test-output",
+      "path": "artifacts/checkout-repair-cycle-3.log",
+      "sha256": "6c9d527b7c6af7bc902d0dd2dfbc6d5f9f510c225a470d92a0f7b5ed308ce9d1"
+    },
+    {
+      "kind": "changed-files",
+      "path": "artifacts/checkout-repair-files.txt",
+      "sha256": "a91b1ec731a2393ee873ef2f83fa4a2a7fdd6e1223bbf26a7763f8db2f4124b9"
+    }
+  ],
+  "verifier": {
+    "type": "deterministic",
+    "name": "pytest",
+    "verdict": "pass"
+  },
+  "riskControls": {
+    "permissionBoundary": "dry-run",
+    "killSwitchChecked": true,
+    "sideEffects": [
+      {
+        "kind": "git-change",
+        "target": "checkout/retry_policy.py",
+        "idempotencyKey": "branch:checkout-payment-retry-repair-20260630",
+        "auditRef": "artifacts/checkout-repair-files.txt"
+      }
+    ]
+  },
+  "trace": {
+    "traceId": "checkout-repair-20260630-080000",
+    "spanCount": 10,
+    "provider": "local-command-log"
+  }
+}
