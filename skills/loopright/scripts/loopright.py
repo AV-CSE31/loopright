@@ -21,6 +21,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 SKILL_DIR = SCRIPT_DIR.parent
 REFERENCE_DIR = SKILL_DIR / "references"
 TEMPLATE_PATH = SKILL_DIR / "templates" / "loop-contract-template.md"
+RUN_EVIDENCE_TEMPLATE_PATH = SKILL_DIR / "templates" / "loop-run-evidence-template.json"
 
 
 LOOP_TERMS = re.compile(
@@ -192,6 +193,13 @@ def command_validate_catalog(args: argparse.Namespace) -> int:
     return run_sibling("validate-pattern-catalog.py", [catalog])
 
 
+def command_validate_run(args: argparse.Namespace) -> int:
+    command_args = [args.bundle]
+    if args.fail_on_warning:
+        command_args.append("--fail-on-warning")
+    return run_sibling("validate-loop-run.py", command_args)
+
+
 def command_catalog(args: argparse.Namespace) -> int:
     files = {
         "json": REFERENCE_DIR / "pattern-catalog.json",
@@ -203,7 +211,8 @@ def command_catalog(args: argparse.Namespace) -> int:
 
 
 def command_template(args: argparse.Namespace) -> int:
-    write_output(TEMPLATE_PATH.read_text(encoding="utf-8"), args.output)
+    template_path = RUN_EVIDENCE_TEMPLATE_PATH if args.kind == "run-evidence" else TEMPLATE_PATH
+    write_output(template_path.read_text(encoding="utf-8"), args.output)
     return 0
 
 
@@ -238,12 +247,18 @@ def build_parser() -> argparse.ArgumentParser:
     validate_catalog.add_argument("catalog_json", nargs="?")
     validate_catalog.set_defaults(func=command_validate_catalog)
 
+    validate_run = subparsers.add_parser("validate-run", help="Validate one LoopRight run evidence bundle")
+    validate_run.add_argument("bundle")
+    validate_run.add_argument("--fail-on-warning", action="store_true", help="Exit 1 when warnings are present")
+    validate_run.set_defaults(func=command_validate_run)
+
     catalog = subparsers.add_parser("catalog", help="Print the bundled pattern catalog")
     catalog.add_argument("--format", choices=["json", "md", "llms"], default="md")
     catalog.add_argument("--output", help="Write output to a file")
     catalog.set_defaults(func=command_catalog)
 
-    template = subparsers.add_parser("template", help="Print the LoopRight contract template")
+    template = subparsers.add_parser("template", help="Print a LoopRight template")
+    template.add_argument("--kind", choices=["contract", "run-evidence"], default="contract")
     template.add_argument("--output", help="Write output to a file")
     template.set_defaults(func=command_template)
 

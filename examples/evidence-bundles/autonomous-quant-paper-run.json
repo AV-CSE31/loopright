@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "loopId": "paper-quant-vol-breakout-20260630",
+  "loopType": "autonomous-decision-loop",
+  "objective": "Evaluate a volatility-breakout paper-trading strategy and execute only simulator-approved orders inside the daily risk budget.",
+  "contract": {
+    "objective": "Evaluate a volatility-breakout paper-trading strategy and execute only simulator-approved orders inside the daily risk budget.",
+    "state": "Market snapshot id, candidate signal, risk budget, verifier decision, paper orders, and performance report.",
+    "action": "Generate a candidate signal, verify it against deterministic risk limits, execute approved paper orders, and update the audit log.",
+    "progress": "Each cycle produces an approved/rejected decision, a paper order or explicit no-op, and updated drawdown/exposure metrics.",
+    "invariant": "No live orders, no position above 2% notional exposure, and no memory update without verifier approval.",
+    "budget": {
+      "maxIterations": 4,
+      "maxSeconds": 3600,
+      "maxCostUsd": 10
+    },
+    "stopCondition": "Four market snapshots are evaluated, the daily paper-order budget is exhausted, or risk guard fails.",
+    "failureCondition": "Verifier rejects two consecutive signals for the same risk reason or drawdown exceeds the paper limit.",
+    "recovery": "Stop execution, keep the audit log immutable, and require human review before changing risk limits.",
+    "evidence": "Verifier decisions, paper-order audit records, metric summary, and kill-switch status."
+  },
+  "run": {
+    "startedAt": "2026-06-30T13:30:00Z",
+    "endedAt": "2026-06-30T14:18:25Z",
+    "status": "completed",
+    "stopReason": "snapshot-budget-consumed",
+    "iterationsUsed": 4,
+    "secondsUsed": 2905,
+    "costUsd": 3.74
+  },
+  "iterations": [
+    {
+      "index": 1,
+      "hypothesis": "The first volatility breakout signal has acceptable exposure and spread.",
+      "action": "Generated signal, verified max exposure, and placed a paper buy order.",
+      "progress": "Paper order accepted with 0.7% notional exposure.",
+      "status": "passed",
+      "checks": [
+        {
+          "name": "risk verifier snapshot 1",
+          "command": "python tools/risk_gate.py --snapshot snap-001 --paper",
+          "status": "passed",
+          "evidenceRef": "artifacts/quant-risk-snap-001.json"
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "hypothesis": "The second signal is too correlated with the open paper position.",
+      "action": "Generated signal and rejected it through the deterministic risk gate.",
+      "progress": "No-op recorded with correlation rejection reason.",
+      "status": "passed",
+      "checks": [
+        {
+          "name": "risk verifier snapshot 2",
+          "command": "python tools/risk_gate.py --snapshot snap-002 --paper",
+          "status": "passed",
+          "evidenceRef": "artifacts/quant-risk-snap-002.json"
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "hypothesis": "The third signal can be traded after reducing position size.",
+      "action": "Generated signal, clipped size to the risk budget, and placed a paper sell order.",
+      "progress": "Paper order accepted with 0.5% notional exposure.",
+      "status": "passed",
+      "checks": [
+        {
+          "name": "risk verifier snapshot 3",
+          "command": "python tools/risk_gate.py --snapshot snap-003 --paper",
+          "status": "passed",
+          "evidenceRef": "artifacts/quant-risk-snap-003.json"
+        }
+      ]
+    },
+    {
+      "index": 4,
+      "hypothesis": "The fourth signal should be rejected when spread exceeds the threshold.",
+      "action": "Generated signal and rejected it through the deterministic risk gate.",
+      "progress": "No-op recorded with spread rejection reason.",
+      "status": "passed",
+      "checks": [
+        {
+          "name": "risk verifier snapshot 4",
+          "command": "python tools/risk_gate.py --snapshot snap-004 --paper",
+          "status": "passed",
+          "evidenceRef": "artifacts/quant-risk-snap-004.json"
+        }
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "kind": "audit-log",
+      "path": "artifacts/paper-quant-audit.jsonl",
+      "sha256": "7994ec57bde807c4d8c467c109b5868a437207c73f32d55d9159f3e02d71cc7d"
+    },
+    {
+      "kind": "metric-summary",
+      "path": "artifacts/paper-quant-summary.json",
+      "sha256": "dd4209936bceab3d7d24f73abdd2e61573d2cc89d59db873436d0169da28f872"
+    }
+  ],
+  "verifier": {
+    "type": "deterministic",
+    "name": "risk_gate.py",
+    "verdict": "pass"
+  },
+  "riskControls": {
+    "permissionBoundary": "paper",
+    "killSwitchChecked": true,
+    "sideEffects": [
+      {
+        "kind": "paper-order",
+        "target": "paper-broker:order-20260630-001",
+        "idempotencyKey": "paper-quant-vol-breakout-20260630:snap-001",
+        "auditRef": "artifacts/paper-quant-audit.jsonl"
+      },
+      {
+        "kind": "paper-order",
+        "target": "paper-broker:order-20260630-002",
+        "idempotencyKey": "paper-quant-vol-breakout-20260630:snap-003",
+        "auditRef": "artifacts/paper-quant-audit.jsonl"
+      }
+    ]
+  },
+  "trace": {
+    "traceId": "paper-quant-vol-breakout-20260630",
+    "spanCount": 28,
+    "provider": "paper-trading-observability"
+  },
+  "evaluations": [
+    {
+      "name": "drawdown guard",
+      "metric": "max_drawdown_pct",
+      "value": 0.4,
+      "threshold": 1.5,
+      "status": "passed"
+    },
+    {
+      "name": "exposure guard",
+      "metric": "max_notional_exposure_pct",
+      "value": 0.7,
+      "threshold": 2,
+      "status": "passed"
+    },
+    {
+      "name": "paper fill audit",
+      "metric": "orders_with_audit_ref",
+      "value": 2,
+      "threshold": 2,
+      "status": "passed"
+    }
+  ]
+}
