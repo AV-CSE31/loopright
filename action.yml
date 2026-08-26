@@ -1,0 +1,61 @@
+name: "LoopRight Loop Risk Scan"
+description: "Scan a repository for unbounded, unguarded, or unbudgeted loops — including agent-framework loops missing their own iteration guard — and emit SARIF."
+author: "AV-CSE31"
+
+branding:
+  icon: repeat
+  color: green
+
+inputs:
+  path:
+    description: "File or directory to scan."
+    required: false
+    default: "."
+  format:
+    description: "Output format: sarif, json, or md."
+    required: false
+    default: "sarif"
+  output:
+    description: "File to write scan output to. Leave empty to print to the log."
+    required: false
+    default: "loopright.sarif"
+  fail-on-risk:
+    description: "Fail the step when high-confidence findings exist."
+    required: false
+    default: "false"
+  python-version:
+    description: "Python version used to run the scanner."
+    required: false
+    default: "3.x"
+
+outputs:
+  output-file:
+    description: "Path to the file the scan was written to."
+    value: ${{ inputs.output }}
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: Run LoopRight scan
+      shell: bash
+      env:
+        LOOPRIGHT_CLI: ${{ github.action_path }}/skills/loopright/scripts/loopright.py
+        LOOPRIGHT_PATH: ${{ inputs.path }}
+        LOOPRIGHT_FORMAT: ${{ inputs.format }}
+        LOOPRIGHT_OUTPUT: ${{ inputs.output }}
+        LOOPRIGHT_FAIL_ON_RISK: ${{ inputs.fail-on-risk }}
+      run: |
+        set -euo pipefail
+        args=(scan "$LOOPRIGHT_PATH" --format "$LOOPRIGHT_FORMAT")
+        if [ -n "$LOOPRIGHT_OUTPUT" ]; then
+          args+=(--output "$LOOPRIGHT_OUTPUT")
+        fi
+        if [ "$LOOPRIGHT_FAIL_ON_RISK" = "true" ]; then
+          args+=(--fail-on-risk)
+        fi
+        python "$LOOPRIGHT_CLI" "${args[@]}"
