@@ -71,6 +71,81 @@ RISK_PATTERNS = [
 ]
 
 
+# Framework rulepacks use guard-absence detection: when a file clearly builds an
+# agent loop with a known framework and never mentions that framework's own
+# iteration guard, the loop runs on a library default instead of a designed budget.
+# These rules are file-scoped, so a guard configured in a different module reads as
+# missing here. Treat them as review prompts, not proof.
+FRAMEWORK_RULES = [
+    {
+        "id": "langgraph-missing-recursion-limit",
+        "severity": "P1",
+        "framework": "LangGraph",
+        "scope": [re.compile(r"\blanggraph\b|\bStateGraph\s*\(|\bMessageGraph\s*\(|\bcreate_react_agent\s*\(")],
+        "trigger": re.compile(r"\bStateGraph\s*\(|\bMessageGraph\s*\(|\bcreate_react_agent\s*\(|\.compile\s*\("),
+        "requires": re.compile(r"\brecursion_limit\b"),
+        "message": "LangGraph graph built without a recursion_limit in this file. A graph with cycles falls back to the library default and raises GraphRecursionError instead of stopping on a designed budget.",
+    },
+    {
+        "id": "langgraph-missing-checkpointer",
+        "severity": "P2",
+        "framework": "LangGraph",
+        "scope": [re.compile(r"\blanggraph\b|\bStateGraph\s*\(|\bMessageGraph\s*\(")],
+        "trigger": re.compile(r"\.compile\s*\("),
+        "requires": re.compile(r"\bcheckpointer\b|\b(?:Memory|Sqlite|Postgres|AsyncSqlite|AsyncPostgres)Saver\b"),
+        "message": "LangGraph graph compiled without a checkpointer in this file. Without durable state the loop cannot resume after a crash and a replay repeats completed work.",
+    },
+    {
+        "id": "openai-agents-missing-max-turns",
+        "severity": "P1",
+        "framework": "OpenAI Agents SDK",
+        "scope": [re.compile(r"\bfrom\s+agents\s+import\b|\bimport\s+agents\b|\bRunner\.run")],
+        "trigger": re.compile(r"\bRunner\.run(?:_sync|_streamed)?\s*\("),
+        "requires": re.compile(r"\bmax_turns\b"),
+        "message": "OpenAI Agents SDK run without max_turns in this file. The agent tool loop then relies on the SDK default turn cap rather than a budget the design chose.",
+    },
+    {
+        "id": "crewai-missing-iteration-budget",
+        "severity": "P1",
+        "framework": "CrewAI",
+        "scope": [re.compile(r"\bcrewai\b")],
+        "trigger": re.compile(r"\bAgent\s*\(|\bCrew\s*\("),
+        "requires": re.compile(r"\bmax_iter\b|\bmax_execution_time\b|\bmax_rpm\b"),
+        "message": "CrewAI agent or crew defined without max_iter, max_execution_time, or max_rpm in this file. Tool-use iterations are then bounded only by the model deciding to stop.",
+    },
+    {
+        "id": "langchain-agent-missing-max-iterations",
+        "severity": "P1",
+        "framework": "LangChain",
+        "scope": [re.compile(r"\bAgentExecutor\b|\binitialize_agent\s*\(")],
+        "trigger": re.compile(r"\bAgentExecutor\s*\(|\binitialize_agent\s*\("),
+        "requires": re.compile(r"\bmax_iterations\b|\bmax_execution_time\b"),
+        "message": "LangChain AgentExecutor without max_iterations or max_execution_time in this file. The executor keeps calling tools until the model stops on its own.",
+    },
+    {
+        "id": "autogen-missing-turn-limit",
+        "severity": "P1",
+        "framework": "AutoGen",
+        "scope": [re.compile(r"\bautogen\b|\binitiate_chat\s*\(|\bRoundRobinGroupChat\s*\(")],
+        "trigger": re.compile(r"\binitiate_chat\s*\(|\bRoundRobinGroupChat\s*\(|\bGroupChat\s*\("),
+        "requires": re.compile(r"\bmax_turns\b|\bmax_consecutive_auto_reply\b|\bmax_round\b|\bmax_messages\b|\btermination_condition\b"),
+        "message": "AutoGen conversation started without max_turns, max_round, or a termination condition in this file. Multi-agent chats can trade messages until the token budget runs out.",
+    },
+    {
+        "id": "ai-sdk-missing-step-limit",
+        "severity": "P1",
+        "framework": "Vercel AI SDK",
+        "scope": [
+            re.compile(r"""\bfrom\s+['"]ai['"]|\brequire\s*\(\s*['"]ai['"]\s*\)"""),
+            re.compile(r"\btools\s*:"),
+        ],
+        "trigger": re.compile(r"\b(?:generateText|streamText)\s*\("),
+        "requires": re.compile(r"\bmaxSteps\b|\bstopWhen\b"),
+        "message": "Vercel AI SDK tool loop without maxSteps or stopWhen in this file. A tool-calling model can keep taking steps with no designed stop.",
+    },
+]
+
+
 BUDGET_TERMS = re.compile(
     r"\b(max|limit|deadline|timeout|cancel|cancellation|budget|attempt|poll|terminal|stop|elapsed|ttl|concurrency|bounded|worker|queue|capacity|semaphore|dead[-_]?letter\w*)\b",
     re.IGNORECASE,
@@ -123,6 +198,38 @@ def discover_text(text: str, source: str) -> list[dict[str, object]]:
                     "matched": match.group(0).strip().splitlines()[0][:120],
                 }
             )
+
+    findings.extend(discover_framework_risks(text, source))
+    findings.sort(key=lambda finding: (finding["line"], finding["risk"]))
+    return findings
+
+
+def discover_framework_risks(text: str, source: str) -> list[dict[str, object]]:
+    """Report agent-framework loops whose own iteration guard is absent from the file."""
+    findings: list[dict[str, object]] = []
+
+    for rule in FRAMEWORK_RULES:
+        if not all(scope.search(text) for scope in rule["scope"]):
+            continue
+        if rule["requires"].search(text):
+            continue
+        match = rule["trigger"].search(text)
+        if match is None:
+            continue
+        line, column = position(text, match.start())
+        findings.append(
+            {
+                "file": source,
+                "line": line,
+                "column": column,
+                "risk": rule["id"],
+                "severity": rule["severity"],
+                "confidence": "high",
+                "message": rule["message"],
+                "matched": match.group(0).strip().splitlines()[0][:120],
+                "framework": rule["framework"],
+            }
+        )
     return findings
 
 
@@ -171,6 +278,23 @@ def render_sarif(payload: dict[str, object]) -> str:
         }
         for pattern in RISK_PATTERNS
     }
+    rules_by_id.update(
+        {
+            rule["id"]: {
+                "id": rule["id"],
+                "name": rule["id"].replace("-", " ").title(),
+                "shortDescription": {"text": rule["message"]},
+                "defaultConfiguration": {
+                    "level": sarif_level(rule["severity"]),
+                },
+                "properties": {
+                    "precision": "high",
+                    "tags": ["loopright", "loop-safety", "agent-framework", rule["framework"]],
+                },
+            }
+            for rule in FRAMEWORK_RULES
+        }
+    )
     results = []
     for finding in findings:
         results.append(
