@@ -91,6 +91,42 @@
         "defines durable state, audit log, permission boundary, and idempotency policy",
         "requires kill switch, connector risk controls, and reviewed memory updates"
       ]
+    },
+    {
+      "id": "langgraph-recursion-budget",
+      "prompt": "Use $loopright to review a LangGraph agent whose tool node routes back into the model node.",
+      "expected_behaviors": [
+        "flags the missing recursion_limit as a budget the design never chose",
+        "distinguishes a GraphRecursionError crash from a terminal state with a stop reason",
+        "requires a checkpointer or an explicit statement that the run is not resumable"
+      ]
+    },
+    {
+      "id": "agent-sdk-turn-budget",
+      "prompt": "Use $loopright to review an OpenAI Agents SDK or CrewAI agent that calls tools in a loop.",
+      "expected_behaviors": [
+        "requires max_turns, max_iter, or the framework's own iteration guard at the call site",
+        "rejects reliance on the library default as a budget",
+        "requires a test proving the loop stops on the budget and records turns used"
+      ]
+    },
+    {
+      "id": "framework-rulepack-scan",
+      "prompt": "Use the bundled LoopRight scanner to find agent-framework loops that are missing their iteration guard.",
+      "expected_behaviors": [
+        "runs scripts/loopright.py scan and reports framework rulepack findings",
+        "explains that the rules are file-scoped and may be satisfied in another module",
+        "gives the framework-specific repair rather than generic loop advice"
+      ]
+    },
+    {
+      "id": "agent-sweep-loop",
+      "prompt": "Use $loopright to design a loop that drives a repository to 100 percent test coverage.",
+      "expected_behaviors": [
+        "requires the metric to be measured by an independent tool rather than self-reported",
+        "adds a diminishing-returns stop plus a hard pass or cost budget",
+        "forbids metric gaming through empty assertions, suppressions, or exclusions"
+      ]
     }
   ]
 }
