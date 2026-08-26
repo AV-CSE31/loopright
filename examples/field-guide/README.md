@@ -12,6 +12,7 @@ Use these examples when you want to show why LoopRight matters:
 | [Realtime enrichment fan-out](realtime-enrichment-fanout.md) | Async concurrency | Prevents `Promise.all` style overload while preserving partial-failure records. |
 | [Support agent repair loop](support-agent-repair-loop.md) | Agent tool-use | Stops a coding agent from repeating failed fixes without a changed hypothesis. |
 | [Autonomous quant research loop](autonomous-quant-research-loop.md) | Autonomous decision loop | Turns a self-improving trading-agent idea into a paper-trading loop with maker-checker verification, state governance, connector boundaries, and kill switches. |
+| [Test coverage sweep](coverage-sweep.md) | Agent sweep | Drives a tool-measured coverage target without gaming the metric or sweeping forever. |
 
 ## Quality Bar
 

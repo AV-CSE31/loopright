@@ -54,3 +54,23 @@ For ML, benchmarks, prompt tuning, and agent improvements, the metric used to ch
 - Added CI validation for the pattern catalog and generated docs.
 - Added README install UX for `npx skills add`.
 
+## Update 2026-06-24: High-Impact Loop Leveraged
+
+The Forward Future Loop Library's highest-traffic public loops are codebase-wide
+convergence sweeps: `100-percent-test-coverage-loop`, `production-error-sweep`,
+`exhaustive-logging-coverage-loop`, and `overnight-docs-sweep`. They share one
+skeleton — keep making agent passes until a whole-codebase metric reaches a
+target — and they are exactly the "iterate until it works" loops most prone to
+runaway cost, metric gaming, and false completion.
+
+LoopRight had no pattern for this family (LR-006 repairs one named check; LR-007
+measures candidates). Added `LR-009 Agent Sweep Loop` to close the gap, with the
+LoopRight-specific guarantees the source loops leave implicit:
+
+- The metric must be measured by an independent tool, never self-reported.
+- A diminishing-returns / loop-until-dry stop plus a hard pass and cost budget.
+- A no-gaming invariant (no empty assertions, suppressed errors, or excluded files).
+- Before/after evidence from the measuring tool, with skipped items dead-lettered.
+
+Field-guide example: `examples/field-guide/coverage-sweep.md`.
+

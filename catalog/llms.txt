@@ -106,6 +106,18 @@ Key red flags: Non-idempotent payment or message send inside replayable code; Re
 
 Required evidence: Terminal state, step history, external ids, compensation records, and audit log.
 
+## agent-sweep-loop: Agent Sweep Loop
+
+Use when: Use when an agent repeatedly raises a whole-codebase quality metric toward a target across many files in one sweep: test coverage, lint or error count, logging coverage, type coverage, documentation coverage, or accessibility.
+
+Prompt: Design or review this agent sweep loop with a tool-measured target metric, per-pass and total budgets, a diminishing-returns or coverage-complete stop, a no-gaming invariant, preservation of unrelated behavior, and an evidence artifact that records the metric measured by an independent tool before and after.
+
+Verification: Improvement is real, tool-measured, and bounded. Evidence shows the target metric measured by an independent tool before and after, the scope and skipped items, the passes and budget used, and proof that unrelated checks still pass.
+
+Key red flags: Iterate to 100 percent with no budget or diminishing-returns stop; Metric self-reported by the agent instead of measured by a tool; Coverage raised with empty or assertion-free tests; Errors cleared by suppression or exclusion instead of fixes; Unrelated files rewritten to move the metric; No before-and-after measurement from an independent tool.
+
+Required evidence: Before and after metric from the independent tool, scope covered, items skipped or dead-lettered with reasons, passes and budget used, and confirmation that unrelated checks still pass.
+
 ## autonomous-decision-loop: Autonomous Decision Loop
 
 Use when: Use when an agent loop wakes on a trigger or cadence, reads durable state, proposes a consequential action, verifies it with independent checks, executes through connectors or tools, records outcomes, and updates memory for future runs.

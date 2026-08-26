@@ -34,6 +34,10 @@ jobs:
       - name: Run scanner benchmark
         run: |
           python benchmarks/run_loopright_benchmark.py
+      - name: Check published benchmark results are current
+        run: |
+          python benchmarks/run_loopright_benchmark.py --format md --output benchmarks/RESULTS.md
+          git diff --exit-code -- benchmarks/RESULTS.md
       - name: Discover loop risks
         run: |
           python skills/loopright/scripts/loopright.py scan skills/loopright/scripts --format sarif --output loopright.sarif

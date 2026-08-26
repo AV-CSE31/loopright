@@ -150,6 +150,23 @@ Prioritize:
 - `study.optimize(...)` or training loops without `n_trials`, `timeout`, max epochs, early stopping, or baseline evidence.
 - Agent prompts that say "keep trying", "until it works", or "repeat until fixed" without a cycle budget or repeated-failure stop.
 
+### Agent Framework Rulepacks
+
+The scanner also reports agent loops whose own framework guard is absent from the file:
+
+| Rule | Required guard |
+|---|---|
+| `langgraph-missing-recursion-limit` | `recursion_limit` in the graph config |
+| `langgraph-missing-checkpointer` | `checkpointer` or a `*Saver` on `.compile(...)` |
+| `openai-agents-missing-max-turns` | `max_turns` on the `Runner.run` call |
+| `crewai-missing-iteration-budget` | `max_iter`, `max_execution_time`, or `max_rpm` |
+| `langchain-agent-missing-max-iterations` | `max_iterations` or `max_execution_time` |
+| `autogen-missing-turn-limit` | `max_turns`, `max_round`, or a termination condition |
+| `ai-sdk-missing-step-limit` | `maxSteps` or `stopWhen` |
+
+These rules are file-scoped, so a guard configured in another module reads as missing.
+See `references/agent-framework-rulepacks.md` before reporting one as a defect.
+
 ## References
 
 Load only the relevant reference:
@@ -159,6 +176,7 @@ Load only the relevant reference:
 - `references/async-concurrency.md`: async task groups, cancellation, and bounded parallelism.
 - `references/ml-tuning.md`: training, evaluation, optimization, pruning, and experiment evidence.
 - `references/agent-loops.md`: coding-agent, tool-use, and iterative repair loops.
+- `references/agent-framework-rulepacks.md`: LangGraph, OpenAI Agents SDK, CrewAI, LangChain, AutoGen, and Vercel AI SDK loop guards.
 - `references/review-rubric.md`: review checklist and severity guidance.
 - `references/loop-doctor.md`: diagnostic workflow for auditing and minimally repairing loops.
 - `references/pattern-catalog.md`: human-readable index of LoopRight patterns.

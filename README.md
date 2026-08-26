@@ -2,6 +2,11 @@
 
 Write loops right: bounded, observable, failure-aware, and backed by evidence.
 
+[![Validate](https://github.com/AV-CSE31/loopright/actions/workflows/validate.yml/badge.svg)](https://github.com/AV-CSE31/loopright/actions/workflows/validate.yml)
+[![Code Scanning](https://github.com/AV-CSE31/loopright/actions/workflows/loopright-code-scanning.yml/badge.svg)](https://github.com/AV-CSE31/loopright/actions/workflows/loopright-code-scanning.yml)
+[![Scanner benchmark](https://img.shields.io/badge/scanner%20benchmark-14%2F14%20rules%20exercised-2ea44f)](benchmarks/RESULTS.md)
+[![Agent Skill](https://img.shields.io/badge/Agent%20Skill-portable-blue)](skills/loopright/SKILL.md)
+
 LoopRight is a portable Agent Skill for Codex, Claude Code, and other Agent Skills-compatible coding agents. It helps agents design, implement, review, and validate loops that are bounded, observable, failure-aware, and backed by completion evidence.
 
 It is built for the places where "just retry", "keep polling", "fan out everything", or "iterate until it works" can become runaway cost, duplicate side effects, overloaded services, bad metrics, or false completion.
@@ -25,9 +30,12 @@ That makes it useful for code review, architecture design, incident repair, ML t
 | Portable Agent Skill | Works as a self-contained `skills/loopright` folder for Codex, Claude Code, and compatible agents. | [skills/loopright/SKILL.md](skills/loopright/SKILL.md) |
 | Loop Doctor | Diagnoses loop prompts, code, architecture, or run logs with verdict, findings, minimal repair, and required evidence. | [loop-doctor.md](skills/loopright/references/loop-doctor.md) |
 | Loop Contract | Forces objective, state, action, progress, invariant, budget, stop, failure, recovery, and evidence before implementation. | [contract template](skills/loopright/templates/loop-contract-template.md) |
-| Pattern Catalog | Machine-readable and human-readable loop patterns for retry, polling, fan-out, backfill, ML tuning, agents, autonomous decisions, benchmarks, and durable workflows. | [catalog JSON](catalog/loopright-patterns.json), [catalog guide](catalog/catalog.md) |
+| Pattern Catalog | Machine-readable and human-readable loop patterns for retry, polling, fan-out, backfill, ML tuning, agent repair, agent sweeps, autonomous decisions, benchmarks, and durable workflows. | [catalog JSON](catalog/loopright-patterns.json), [catalog guide](catalog/catalog.md) |
 | CLI Front Door | One command surface for scan, doctor, validation, catalog, and template operations. | [loopright.py](skills/loopright/scripts/loopright.py) |
 | Risk Scanner | Detects risky loops such as unbounded `while True`, broad retry catches, polling without deadline, unbounded async fan-out, weak agent loops, and ML tuning without budget. | `python skills/loopright/scripts/loopright.py scan .` |
+| Agent Framework Rulepacks | Flags LangGraph, OpenAI Agents SDK, CrewAI, LangChain, AutoGen, and Vercel AI SDK loops that never set their own iteration guard. | [rulepack reference](skills/loopright/references/agent-framework-rulepacks.md) |
+| GitHub Action | Drop-in `uses: AV-CSE31/loopright@main` step that scans a repository and emits SARIF. | [action.yml](action.yml) |
+| Published Benchmark Results | Precision, recall, and per-rule results regenerated on every change and diffed in CI. | [benchmarks/RESULTS.md](benchmarks/RESULTS.md) |
 | SARIF Output | Emits code-scanning output that can be uploaded to GitHub Advanced Security or other SARIF consumers. | [.github/workflows/loopright-code-scanning.yml](.github/workflows/loopright-code-scanning.yml) |
 | Pre-commit Hook | Lets teams block high-confidence loop risks before code lands. | [.pre-commit-hooks.yaml](.pre-commit-hooks.yaml) |
 | Runnable Proof Pack | Standard-library examples with tests for retry loops, polling loops, and bounded async worker pools. | [examples/runnable](examples/runnable) |
@@ -44,6 +52,7 @@ That makes it useful for code review, architecture design, incident repair, ML t
 - ML training and hyperparameter-tuning loops
 - Iterative code-repair loops
 - Agent tool-use loops
+- Agent framework loops in LangGraph, OpenAI Agents SDK, CrewAI, LangChain, AutoGen, and the Vercel AI SDK
 - Autonomous decision loops with state, verifier, connector, audit, and kill-switch boundaries
 - Durable workflow design review
 
@@ -57,7 +66,7 @@ LoopRight can be used even before installation:
 - [Human-readable pattern catalog](catalog/catalog.md)
 - [Agent guide / llms.txt](catalog/llms.txt)
 
-The catalog includes patterns for retry loops, polling loops, async fan-out, distributed backfills, ML tuning, agent repair, autonomous decisions, benchmark loops, and durable workflows.
+The catalog includes patterns for retry loops, polling loops, async fan-out, distributed backfills, ML tuning, agent repair, agent sweeps, autonomous decisions, benchmark loops, and durable workflows.
 
 ## Practical Tooling
 
@@ -75,6 +84,14 @@ Generate machine-readable output:
 python skills/loopright/scripts/loopright.py scan . --format json
 python skills/loopright/scripts/loopright.py scan . --format sarif --output loopright.sarif
 ```
+
+Scan agent-framework code for loops that never set their own iteration guard:
+
+```bash
+python skills/loopright/scripts/loopright.py scan services/agents --format md
+```
+
+This reports LangGraph graphs without `recursion_limit` or a checkpointer, Agents SDK runs without `max_turns`, CrewAI agents without `max_iter`, LangChain executors without `max_iterations`, AutoGen chats without a turn ceiling, and Vercel AI SDK tool loops without `maxSteps` or `stopWhen`. See the [rulepack reference](skills/loopright/references/agent-framework-rulepacks.md) for how to read a finding.
 
 Turn a file, prompt, or run log into a Loop Doctor report:
 
@@ -114,6 +131,21 @@ python benchmarks/run_loopright_benchmark.py
 
 The benchmark checks known unsafe and safe fixtures and reports precision, recall, false positives, and false negatives for high-confidence scanner findings.
 
+Current published results ([full table](benchmarks/RESULTS.md)):
+
+| Metric | Value |
+|---|---|
+| Precision (high-confidence findings) | 100.0% |
+| Recall (high-confidence findings) | 100.0% |
+| Fixtures | 16 |
+| Rules exercised | 14/14 |
+| Safe fixtures with zero findings | 5/5 |
+
+These are seeded fixtures, not a random sample of production code. They prove every rule
+fires where it should and stays quiet on the repaired version of the same loop, and they
+fail CI when a rule regresses. They do not estimate real-world prevalence. Every scanner
+rule must have a positive fixture or the benchmark fails, so coverage cannot silently rot.
+
 Case studies:
 
 - [Runaway retry cost](docs/case-studies.md#runaway-retry-cost)
@@ -128,6 +160,7 @@ Field guide examples with realistic prompts, risky starting points, LoopRight co
 - [Realtime enrichment fan-out](examples/field-guide/realtime-enrichment-fanout.md)
 - [Support agent repair loop](examples/field-guide/support-agent-repair-loop.md)
 - [Autonomous quant research loop](examples/field-guide/autonomous-quant-research-loop.md)
+- [Test coverage sweep](examples/field-guide/coverage-sweep.md)
 
 ## Adoption Hooks
 
@@ -141,7 +174,35 @@ repos:
       - id: loopright-scan
 ```
 
-Use LoopRight in GitHub code scanning by adapting [.github/workflows/loopright-code-scanning.yml](.github/workflows/loopright-code-scanning.yml). The workflow emits SARIF from the bundled CLI and uploads it with GitHub's SARIF uploader.
+Use LoopRight as a GitHub Action. The action is defined at [action.yml](action.yml) and needs no installation step:
+
+```yaml
+name: Loop safety
+
+on: [pull_request]
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  loopright:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: AV-CSE31/loopright@main
+        with:
+          path: .
+          format: sarif
+          output: loopright.sarif
+      - uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: loopright.sarif
+```
+
+Inputs: `path` (default `.`), `format` (`sarif`, `json`, or `md`), `output`, `fail-on-risk` (default `false`), and `python-version`. Set `fail-on-risk: "true"` to block a pull request on high-confidence findings instead of only reporting them.
+
+This repository dogfoods the same action in [.github/workflows/loopright-code-scanning.yml](.github/workflows/loopright-code-scanning.yml).
 
 ## Where LoopRight Is Useful
 

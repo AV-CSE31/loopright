@@ -37,6 +37,13 @@ REPAIR_BY_RISK = {
     "unbounded-async-fanout": "Replace unbounded fan-out with a semaphore, queue, worker pool, or task group with a visible concurrency limit.",
     "optuna-without-visible-budget": "Add n_trials or timeout, baseline metrics, validation split identity, pruning policy, and final comparison evidence.",
     "agent-loop-without-budget": "Add a cycle budget, changed-hypothesis requirement, no-progress stop, and deterministic completion check.",
+    "langgraph-missing-recursion-limit": "Pass an explicit recursion_limit in the graph config so a cyclic graph stops on a chosen budget instead of the library default.",
+    "langgraph-missing-checkpointer": "Compile the graph with a checkpointer so interrupted runs resume from durable state instead of replaying completed work.",
+    "openai-agents-missing-max-turns": "Pass max_turns to the Runner call so the agent tool loop stops on a budget the design chose.",
+    "crewai-missing-iteration-budget": "Set max_iter, and add max_execution_time or max_rpm when the crew calls rate-limited tools.",
+    "langchain-agent-missing-max-iterations": "Set max_iterations and max_execution_time on the AgentExecutor, and decide what the early-stopping method returns.",
+    "autogen-missing-turn-limit": "Set max_turns, max_round, or an explicit termination condition so the conversation reaches a terminal state.",
+    "ai-sdk-missing-step-limit": "Set stopWhen (or maxSteps on older versions) so the tool-calling loop has a designed step ceiling.",
 }
 
 
@@ -48,6 +55,13 @@ EVIDENCE_BY_RISK = {
     "unbounded-async-fanout": "Measure max active work and prove cancellation or partial-failure cleanup.",
     "optuna-without-visible-budget": "Save baseline, trial budget, best trial, validation split, seed, and final metric table.",
     "agent-loop-without-budget": "Record cycles used, hypotheses changed, check command, and repeated-failure stop status.",
+    "langgraph-missing-recursion-limit": "Test that a looping graph stops at the configured recursion_limit and reports the stop reason.",
+    "langgraph-missing-checkpointer": "Test that an interrupted run resumes from the checkpoint without repeating completed side effects.",
+    "openai-agents-missing-max-turns": "Test that a tool-looping agent stops at max_turns and record turns used per run.",
+    "crewai-missing-iteration-budget": "Record iterations used per agent and test the behaviour when max_iter is reached.",
+    "langchain-agent-missing-max-iterations": "Test that the executor stops at max_iterations and returns the documented early-stopping output.",
+    "autogen-missing-turn-limit": "Test that the chat reaches a terminal state within the turn ceiling and record turns used.",
+    "ai-sdk-missing-step-limit": "Test that the tool loop stops at the step ceiling and record steps used per request.",
 }
 
 
